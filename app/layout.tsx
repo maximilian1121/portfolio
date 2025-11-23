@@ -23,6 +23,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/icon" sizes="any" />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <nav className="bg-neutral-primary fixed w-full z-20 top-0 left-0 border-b border-gray-600 bg-gray-700">
           <div className="max-w-7xl flex flex-wrap items-center justify-between mx-auto p-4">
@@ -32,7 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 width={256}
                 height={256}
                 className="rounded-full h-7 w-7"
-                src="https://avatars.githubusercontent.com/u/168935358"
+                src="/icon"
               />
               <span className="self-center text-xl text-heading font-semibold whitespace-nowrap">
                 Maximilian the website

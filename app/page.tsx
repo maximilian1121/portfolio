@@ -18,7 +18,7 @@ export default async function Page() {
           width={256}
           height={256}
           className="rounded-full h-32 w-32 md:h-64 md:w-64"
-          src="https://avatars.githubusercontent.com/u/168935358"
+          src="/icon"
         />
         <div className="flex flex-col gap-7">
           <h1 className="text-2xl md:text-4xl font-semibold">Maximilian</h1>

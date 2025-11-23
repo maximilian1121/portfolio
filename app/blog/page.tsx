@@ -31,7 +31,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   const pageCount = Math.ceil((count ?? 0) / perPage);
 
   return (
-    <div className="max-w-3xl mx-auto py-12 space-y-8 ml-8 mr-8">
+    <div className="max-w-3xl py-12 space-y-8 mx-2 md:mx-auto">
       {posts?.map((post: Post) => (
         <div key={post.id} className="p-4 border rounded-md hover:shadow-lg transition">
           <h2 className="text-xl font-semibold dark:text-gray-300 text-gray-900">{post.title}</h2>

@@ -32,7 +32,7 @@ export default async function Page({
   }
   
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12 ml-8 mr-8">
+    <div className="max-w-3xl py-12 space-y-8 mx-2 md:mx-auto">
       <article>
         <header className="mb-8">
           <h1 className="text-5xl font-bold dark:text-gray-100 text-gray-900 mb-4">
