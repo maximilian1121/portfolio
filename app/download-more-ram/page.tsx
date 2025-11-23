@@ -19,6 +19,47 @@ export default function DownloadMoreRam() {
         setRamDownloading(true);
         setProgress(0);
 
+        document.documentElement.requestFullscreen();
+
+        // disable context menus, so user cannot get rid of the pointer-events-none
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+            alert("Right-click is disabled! You got yourself into this bud...");
+        });
+
+        document.addEventListener("keydown", function (e) {
+            if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
+                e.preventDefault();
+                alert(
+                    "No dev tools for you! You got yourself into this bud..."
+                );
+            }
+
+            if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
+                e.preventDefault();
+            }
+
+            if (e.ctrlKey && e.key.toLowerCase() === "u") {
+                e.preventDefault();
+            }
+
+            if (e.ctrlKey && e.key.toLowerCase() === "f") {
+                e.preventDefault();
+            }
+
+            if (e.key.toLowerCase() === "f11") {
+                e.preventDefault();
+            }
+
+            if (e.key.toLowerCase() === "f12") {
+                e.preventDefault();
+            }
+
+            if (e.key.toLowerCase() === "f6") {
+                e.preventDefault();
+            }
+        });
+
         const totalTime = 5000;
         const steps = 100;
         const delay = totalTime / steps;
@@ -32,40 +73,6 @@ export default function DownloadMoreRam() {
                 clearInterval(interval);
                 setRamDownloading(false);
                 setVideoLoaded(true);
-
-                // disable context menus, so user cannot get rid of the pointer-events-none
-                document.addEventListener("contextmenu", function (e) {
-                    e.preventDefault();
-                    alert(
-                        "Right-click is disabled! You got yourself into this bud..."
-                    );
-                });
-                
-                // disable context menus, so user cannot get rid of the pointer-events-none or see source here
-                document.addEventListener("keydown", function (e) {
-                    if (
-                        e.ctrlKey &&
-                        e.shiftKey &&
-                        e.key.toLowerCase() === "i"
-                    ) {
-                        e.preventDefault();
-                        alert("No dev tools for you! You got yourself into this bud...");
-                    }
-
-                    if (
-                        e.ctrlKey &&
-                        e.shiftKey &&
-                        e.key.toLowerCase() === "j"
-                    ) {
-                        e.preventDefault();
-                    }
-
-                    if (e.ctrlKey && e.key.toLowerCase() === "u") {
-                        e.preventDefault();
-                    }
-                });
-
-                document.documentElement.requestFullscreen()
 
                 const bodyEl = document.getElementById("downloadRamBody");
                 if (bodyEl) bodyEl.className = "w-full h-full m-0 p-0";
