@@ -32,10 +32,10 @@ export default async function Page({
   }
   
   return (
-    <div className="max-w-3xl py-12 space-y-8 mx-2 md:mx-auto">
+    <div className="max-w-3xl py-12 space-y-8 mx-4 md:mx-auto">
       <article>
         <header className="mb-8">
-          <h1 className="text-5xl font-bold dark:text-gray-100 text-gray-900 mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold dark:text-gray-100 text-gray-900 mb-4">
             {post.title}
           </h1>
           {post.created_at && (
