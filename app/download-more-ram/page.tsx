@@ -49,7 +49,7 @@ export default function DownloadMoreRam() {
             <h1 className="text-2xl mb-2" id="downloadsLabel">
                 Choose the amount of rams you want...
             </h1>
-            <div className="flex gap-4 flex-wrap justify-between" id="downloads">
+            <div className="flex gap-4 flex-wrap justify-center" id="downloads">
                 {downloadSizes.map((size) => (
                     <button
                         key={size}
