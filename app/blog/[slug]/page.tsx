@@ -1,7 +1,7 @@
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { supabase } from '../../../lib/supabaseClient';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { ghcolors } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import Link from 'next/link';
 
 export default async function Page({ 
@@ -66,7 +66,7 @@ export default async function Page({
                 const match = /language-(\w+)/.exec(className || '');
                 return !inline && match ? (
                   <SyntaxHighlighter
-                    style={vscDarkPlus}
+                    style={ghcolors}
                     language={match[1]}
                     PreTag="pre"
                     customStyle={{
