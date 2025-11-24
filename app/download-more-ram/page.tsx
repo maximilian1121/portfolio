@@ -19,7 +19,7 @@ export default function DownloadMoreRam() {
         setRamDownloading(true);
         setProgress(0);
 
-        const totalTime = 2000;
+        const totalTime = 1000;
         const steps = 200;
         const delay = totalTime / steps;
 
