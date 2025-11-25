@@ -2,16 +2,22 @@ const gameList = [
     {
         title: "Ai Cookie Clicker",
         description:
-            "A cookie clicker ripoff created by Claude sonnet 3.5 and fixed by ChatGPT 5",
+            "A cookie clicker ripoff created by Claude sonnet 3.5 and fixed by ChatGPT 5.",
         url: "/games/ai-cookie-clicker",
+    },
+    {
+        title: "Bomb dodge",
+        description:
+            "Use left/right or a/d keys to control a space ship. Move side to side to dodge the falling bombs.",
+        url: "/games/block-dodge",
     },
 ];
 
 export default function Games() {
     return (
-        <div className="max-w-3xl py-12 space-y-8 mx-2 md:mx-auto">
+        <div className="max-w-8xl py-12 space-y-8 mx-2 md:mx-auto">
             <h1 className="text-center text-4xl font-bold">Web games</h1>
-            <div className="justify-center flex flex-wrap">
+            <div className="justify-center flex flex-wrap gap-4 w-full">
                 {gameList.map((game, i) => (
                     <div
                         key={i}
