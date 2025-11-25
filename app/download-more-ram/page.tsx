@@ -8,6 +8,7 @@ const downloadSizes = ["8GB", "16GB", "32GB", "64GB"];
 export default function DownloadMoreRam() {
     const [videoLoaded, setVideoLoaded] = useState(false);
     const [ramDownloading, setRamDownloading] = useState(false);
+    const [ramConfirm, setRamConfirm] = useState(false);
     const [progress, setProgress] = useState(0);
 
     const handleDownloadClick = (size: string) => {
@@ -19,7 +20,7 @@ export default function DownloadMoreRam() {
         setRamDownloading(true);
         setProgress(0);
 
-        const totalTime = 1000;
+        const totalTime = 3000;
         const steps = 200;
         const delay = totalTime / steps;
 
@@ -31,15 +32,18 @@ export default function DownloadMoreRam() {
             if (current >= steps) {
                 clearInterval(interval);
                 setRamDownloading(false);
-                setVideoLoaded(true);
-
-                document.documentElement.requestFullscreen();
-
-                const bodyEl = document.getElementById("downloadRamBody");
-                if (bodyEl) bodyEl.className = "w-full h-full m-0 p-0";
+                setRamConfirm(true);
             }
         }, delay);
     };
+
+    function handleFullyInstall() {
+        setRamConfirm(false);
+        setVideoLoaded(true);
+
+        const bodyEl = document.getElementById("downloadRamBody");
+        if (bodyEl) bodyEl.className = "w-full h-full m-0 p-0";
+    }
 
     return (
         <div
@@ -49,7 +53,10 @@ export default function DownloadMoreRam() {
             <h1 className="text-2xl mb-2" id="downloadsLabel">
                 Choose the amount of rams you want...
             </h1>
-            <div className="flex gap-4 flex-wrap justify-center" id="downloads">
+            <div
+                className="w-full flex gap-4 flex-wrap justify-center"
+                id="downloads"
+            >
                 {downloadSizes.map((size) => (
                     <button
                         key={size}
@@ -62,13 +69,26 @@ export default function DownloadMoreRam() {
             </div>
 
             {ramDownloading && (
-                <div className="w-full">
+                <div className="w-full max-w-4xl mx-auto px-4 py-16 flex flex-col items-center gap-6">
                     <h1 className="text-2xl mb-2">Downloading more rams...</h1>
                     <progress
                         className="w-full h-4 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700"
                         value={progress}
                         max={100}
                     />
+                </div>
+            )}
+
+            {ramConfirm && (
+                <div className="w-full max-w-4xl mx-auto px-4 py-16 flex flex-col items-center gap-6">
+                    <h1 className="text-2xl mb-2">Click to fully install...</h1>
+                    <button
+                        id="confirmButton"
+                        onClick={handleFullyInstall}
+                        className="px-6 py-2 bg-blue-600 text-white rounded gap-2 hover:bg-blue-700 transition cursor-pointer flex justify-center items-center"
+                    >
+                        Confirm
+                    </button>
                 </div>
             )}
 
