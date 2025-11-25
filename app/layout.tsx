@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 import Image from "next/image";
-import { FaHome, FaNewspaper, FaDownload, FaCookie } from "react-icons/fa";
+import { FaHome, FaNewspaper, FaDownload, FaGamepad } from "react-icons/fa";
 import { Analytics } from "@vercel/analytics/react"
 
 const geistSans = Geist({
@@ -84,8 +84,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   </Link>
                 </li>
                 <li>
-                  <Link href="/ai-cookie-clicker" className="flex items-center gap-1 py-2 px-3 font-bold text-white bg-brand rounded md:bg-transparent md:text-fg-brand md:p-0">
-                    <FaCookie className="h-5 w-5" /> Ai Cookie Clicker
+                  <Link href="/games" className="flex items-center gap-1 py-2 px-3 font-bold text-white bg-brand rounded md:bg-transparent md:text-fg-brand md:p-0">
+                    <FaGamepad className="h-5 w-5" /> Games
                   </Link>
                 </li>
               </ul>

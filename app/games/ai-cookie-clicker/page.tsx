@@ -227,8 +227,6 @@ export default function ClickerGame() {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-orange-100 via-yellow-100 to-amber-100 p-4">
-        
-    <div className="h-[2em]"></div>
 
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-4">
@@ -240,10 +238,6 @@ export default function ClickerGame() {
             Reset Game
           </button>
         </div>
-
-        <p className="text-center text-amber-700 mb-6">
-          Expect MAJOR bugs and im not going to fix them because this was made by AI
-        </p>
 
         <div className="grid md:grid-cols-2 gap-6">
           <div className="bg-white rounded-2xl shadow-xl p-8 flex flex-col items-center">
