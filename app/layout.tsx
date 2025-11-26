@@ -29,7 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Analytics/>
-        <nav className="bg-neutral-primary fixed w-full z-20 top-0 left-0 border-b border-gray-600 bg-gray-700">
+        <nav className="bg-neutral-primary fixed w-full z-20 top-0 left-0 border-b border-gray-600 bg-gray-700" id="topBar">
           <div className="max-w-7xl flex flex-wrap items-center justify-between mx-auto p-4">
             <Link href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
               <Image

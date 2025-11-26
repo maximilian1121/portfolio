@@ -9,7 +9,7 @@ const gameList = [
         title: "Bomb dodge",
         description:
             "Use left/right or a/d keys to control a space ship. Move side to side to dodge the falling bombs.",
-        url: "/games/block-dodge",
+        url: "/games/bomb-dodge",
     },
 ];
 
