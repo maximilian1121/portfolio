@@ -27,8 +27,8 @@ export default async function Page() {
       </div>
       <div className="flex gap-10 align-top justify-center flex-col transition-all">
         <div className="flex flex-row gap-10 justify-center align-middle flex-wrap md:flex-nowrap transition-all">
-          <Image className="dark:hidden" src="https://github-readme-stats.vercel.app/api/top-langs?username=maximilian1121" alt="Github top langs"/>
-          <Image className="dark:block hidden" src="https://github-readme-stats.vercel.app/api/top-langs?username=maximilian1121&theme=dark" alt="Github top langs dark"/>
+          <img className="dark:hidden" src="/top-langs-light.svg" alt="Github top langs"/>
+          <img className="dark:block hidden" src="/top-langs.svg" alt="Github top langs dark"/>
         </div>
         <div className="flex flex-col md:text-2xl text-lg justify-center align-middle">
           <h1 className="text-center">Links</h1>
