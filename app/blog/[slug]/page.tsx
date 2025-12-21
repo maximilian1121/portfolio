@@ -23,16 +23,45 @@ export async function generateMetadata({
       description: "The requested blog post could not be found.",
     };
   }
+  function markdownToPlainText(md: string) { // THIS WHOLE FUNCTION IS AI GENERATED I CANT BE BOTHERED TO DO IT MYSELF LOL
+    if (!md) return "";
+    let s = md;
+    // Remove fenced code blocks
+    s = s.replace(/```[\s\S]*?```/g, "");
+    // Replace image markdown with alt text
+    s = s.replace(/!\[(.*?)\]\((?:.*?)\)/g, "$1");
+    // Replace links with their text
+    s = s.replace(/\[(.*?)\]\((?:.*?)\)/g, "$1");
+    // Replace inline code with its content
+    s = s.replace(/`([^`]*)`/g, "$1");
+    // Remove HTML tags
+    s = s.replace(/<[^>]+>/g, "");
+    // Remove headings, blockquote markers, list markers
+    s = s.replace(/^#{1,6}\s*/gm, "");
+    s = s.replace(/^>\s*/gm, "");
+    s = s.replace(/^\s*[-*+]\s+/gm, "");
+    s = s.replace(/^\s*\d+\.\s+/gm, "");
+    // Remove emphasis markers
+    s = s.replace(/[*_~]/g, "");
+    // Collapse multiple newlines and whitespace
+    s = s.replace(/\n{2,}/g, "\n");
+    s = s.replace(/\s+/g, " ");
+    return s.trim();
+  }
 
-  const imgMatch = post.content.match(/!\[.*?\]\((.*?\.(?:jpg|jpeg|png|webp|gif))\)/i);
+  const plain = markdownToPlainText(post.content || "");
+
+  const imgMatch = post.content.match(/!\[.*?\]\((.*?\.(?:jpg|jpeg|png|webp|gif))\)/i); // same with this regex I hate regex lol
   const firstImage = imgMatch ? imgMatch[1] : undefined;
+
+  const shortDesc = plain.slice(0, 160);
 
   return {
     title: post.title,
-    description: post.content.slice(0, 160),
+    description: shortDesc,
     openGraph: {
       title: post.title,
-      description: post.content.slice(0, 160),
+      description: shortDesc,
       type: "article",
       url: `https://www.latific.click/blog/${slug}`,
       images: firstImage
