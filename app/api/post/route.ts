@@ -10,15 +10,18 @@ export type Post = {
 };
 
 export const getPost = cache(async (slug: string): Promise<Post | null> => {
-  const { data, error } = await supabase
+  const { data, error }: { data: Post | null; error: any } = await supabase
     .from("posts")
     .select("*")
     .eq("slug", slug)
     .single();
-
+  
   if (error) {
     if (error.code === "PGRST116") return null;
     throw error;
+  }
+  if (data) {
+    data.content = data.content.replaceAll("https://files.latific.click/file/", "/api/media/");
   }
   return data;
 });
