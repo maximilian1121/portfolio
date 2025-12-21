@@ -43,8 +43,7 @@ export async function generateMetadata({
     s = s.replace(/^\s*\d+\.\s+/gm, "");
     // Remove emphasis markers
     s = s.replace(/[*_~]/g, "");
-    // Collapse multiple newlines and whitespace
-    s = s.replace(/\n{2,}/g, "\n");
+    // Collapse whitespace
     s = s.replace(/\s+/g, " ");
     return s.trim();
   }
@@ -54,7 +53,7 @@ export async function generateMetadata({
   const imgMatch = post.content.match(/!\[.*?\]\((.*?\.(?:jpg|jpeg|png|webp|gif))\)/i); // same with this regex I hate regex lol
   const firstImage = imgMatch ? imgMatch[1] : undefined;
 
-  const shortDesc = plain.slice(0, 160);
+  const shortDesc = plain.slice(0, 320) + (plain.length > 320 ? "..." : "");
 
   return {
     title: post.title,
