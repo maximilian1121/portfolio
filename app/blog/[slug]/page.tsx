@@ -1,8 +1,51 @@
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { supabase } from "../../../lib/supabaseClient";
 import { ghcolors } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { Metadata, ResolvingMetadata } from "next";
+import { getPost } from "@/app/api/post/route";
 import Link from "next/link";
+
+type Props = {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const slug = (await params).slug;
+  const post = await getPost(slug);
+  if (!post) {
+    return {
+      title: "Post not found",
+      description: "The requested blog post could not be found.",
+    };
+  }
+
+  const imgMatch = post.content.match(/!\[.*?\]\((.*?\.(?:jpg|jpeg|png|webp|gif))\)/i);
+  const firstImage = imgMatch ? imgMatch[1] : undefined;
+
+  return {
+    title: post.title,
+    description: post.content.slice(0, 160),
+    openGraph: {
+      title: post.title,
+      description: post.content.slice(0, 160),
+      type: "article",
+      url: `https://www.latific.click/blog/${slug}`,
+      images: firstImage
+        ? [
+            {
+              url: firstImage,
+              alt: post.title,
+            },
+          ]
+        : undefined,
+    },
+  };
+}
 
 export default async function Page({
   params,
@@ -11,17 +54,13 @@ export default async function Page({
 }) {
   const { slug } = await params;
 
-  const { data: post, error } = await supabase
-    .from("posts")
-    .select("*")
-    .eq("slug", slug)
-    .single();
+  const post = await getPost(slug);
 
-  if (error) {
+  if (!post) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-16">
         <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-          <p className="text-red-800">Error fetching post: {error.message}</p>
+          <p className="text-red-800">Error fetching post!</p>
           <Link
             className="text-blue-500 hover:underline mt-2 block"
             href={"/blog"}
@@ -92,7 +131,7 @@ export default async function Page({
               img({ src, alt }: any) {
                 if (src?.endsWith(".mp4")) {
                   return (
-                    <div className="md-video">
+                    <span className="md-video" style={{ display: "block" }}>
                       <video
                         controls
                         playsInline
@@ -102,7 +141,7 @@ export default async function Page({
                         <source src={src} type="video/mp4" />
                         {alt}
                       </video>
-                    </div>
+                    </span>
                   );
                 }
 

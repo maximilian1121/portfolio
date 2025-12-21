@@ -17,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Maximilian - the website.",
-  description: "Maximilians website.",
+  title: "Maximilian - the website",
+  description: "My awesome website where I rant about stuff, make games, or when downloading more RAM rickro- *Cough what?",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

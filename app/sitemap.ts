@@ -10,7 +10,7 @@ type Post = {
 };
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://latific.click'
+  const baseUrl = 'https://www.latific.click'
   const { data: posts, count } = await supabase
       .from('posts')
       .select('*', { count: 'exact' })
