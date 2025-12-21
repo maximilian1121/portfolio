@@ -4,6 +4,7 @@ import { ghcolors } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Metadata, ResolvingMetadata } from "next";
 import { getPost } from "@/app/api/post/route";
 import Link from "next/link";
+import rehypeRaw from "rehype-raw";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -23,7 +24,8 @@ export async function generateMetadata({
       description: "The requested blog post could not be found.",
     };
   }
-  function markdownToPlainText(md: string) { // THIS WHOLE FUNCTION IS AI GENERATED I CANT BE BOTHERED TO DO IT MYSELF LOL
+  function markdownToPlainText(md: string) {
+    // THIS WHOLE FUNCTION IS AI GENERATED I CANT BE BOTHERED TO DO IT MYSELF LOL
     if (!md) return "";
     let s = md;
     // Remove fenced code blocks
@@ -50,7 +52,9 @@ export async function generateMetadata({
 
   const plain = markdownToPlainText(post.content || "");
 
-  const imgMatch = post.content.match(/!\[.*?\]\((.*?\.(?:jpg|jpeg|png|webp|gif))\)/i); // same with this regex I hate regex lol
+  const imgMatch = post.content.match(
+    /!\[.*?\]\((.*?\.(?:jpg|jpeg|png|webp|gif))\)/i
+  ); // same with this regex I hate regex lol
   const firstImage = imgMatch ? imgMatch[1] : undefined;
 
   const shortDesc = plain.slice(0, 320) + (plain.length > 320 ? "..." : "");
@@ -132,50 +136,64 @@ export default async function Page({
                       prose-img:rounded-lg prose-img:shadow-lg"
         >
           <ReactMarkdown
-            components={{
-              code({ node, inline, className, children, ...props }: any) {
-                const match = /language-(\w+)/.exec(className || "");
-                return !inline && match ? (
-                  <SyntaxHighlighter
-                    style={ghcolors}
-                    language={match[1]}
-                    PreTag="pre"
-                    customStyle={{
-                      borderRadius: "0.5rem",
-                      padding: "1rem",
-                      fontSize: "0.875rem",
-                    }}
-                    {...props}
-                  >
-                    {String(children).replace(/\n$/, "")}
-                  </SyntaxHighlighter>
-                ) : (
-                  <code className={className} {...props}>
-                    {children}
-                  </code>
-                );
-              },
-
-              img({ src, alt }: any) {
-                if (src?.endsWith(".mp4")) {
-                  return (
-                    <span className="md-video" style={{ display: "block" }}>
-                      <video
-                        controls
-                        playsInline
-                        preload="metadata"
-                        style={{ width: "100%", borderRadius: "12px" }}
-                      >
-                        <source src={src} type="video/mp4" />
-                        {alt}
-                      </video>
-                    </span>
+            rehypePlugins={[rehypeRaw]}
+            components={
+              {
+                code({ node, inline, className, children, ...props }: any) {
+                  const match = /language-(\w+)/.exec(className || "");
+                  return !inline && match ? (
+                    <SyntaxHighlighter
+                      style={ghcolors}
+                      language={match[1]}
+                      PreTag="pre"
+                      customStyle={{
+                        borderRadius: "0.5rem",
+                        padding: "1rem",
+                        fontSize: "0.875rem",
+                      }}
+                      {...props}
+                    >
+                      {String(children).replace(/\n$/, "")}
+                    </SyntaxHighlighter>
+                  ) : (
+                    <code className={className} {...props}>
+                      {children}
+                    </code>
                   );
-                }
+                },
 
-                return <img src={src} alt={alt} />;
-              },
-            }}
+                img({ src, alt }: any) {
+                  if (src?.endsWith(".mp4")) {
+                    return (
+                      <span className="md-video" style={{ display: "block" }}>
+                        <video
+                          controls
+                          playsInline
+                          preload="metadata"
+                          style={{ width: "100%", borderRadius: "12px" }}
+                        >
+                          <source src={src} type="video/mp4" />
+                          {alt}
+                        </video>
+                      </span>
+                    );
+                  }
+                  return <img src={src} alt={alt} />;
+                },
+
+                steamgame({ node, children }: any) {
+                  const appId = children;
+                  return (
+                    <iframe
+                      src={`https://store.steampowered.com/widget/${appId}`}
+                      style={{ border: 0, width: "100%", height: "190px" }}
+                      frameBorder="0"
+                      scrolling="no"
+                    />
+                  );
+                },
+              } as any
+            }
           >
             {post.content}
           </ReactMarkdown>
