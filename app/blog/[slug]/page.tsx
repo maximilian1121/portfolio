@@ -100,8 +100,8 @@ export default async function Page({
                         style={{ width: "100%", borderRadius: "12px" }}
                       >
                         <source src={src} type="video/mp4" />
+                        {alt}
                       </video>
-                      {alt && <div className="caption">{alt}</div>}
                     </div>
                   );
                 }
