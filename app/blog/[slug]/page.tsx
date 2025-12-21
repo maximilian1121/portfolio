@@ -1,20 +1,20 @@
-import ReactMarkdown from 'react-markdown';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { supabase } from '../../../lib/supabaseClient';
-import { ghcolors } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import Link from 'next/link';
+import ReactMarkdown from "react-markdown";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { supabase } from "../../../lib/supabaseClient";
+import { ghcolors } from "react-syntax-highlighter/dist/esm/styles/prism";
+import Link from "next/link";
 
-export default async function Page({ 
-  params 
-}: { 
-  params: Promise<{ slug: string }> 
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
 
   const { data: post, error } = await supabase
-    .from('posts')
-    .select('*')
-    .eq('slug', slug)
+    .from("posts")
+    .select("*")
+    .eq("slug", slug)
     .single();
 
   if (error) {
@@ -23,14 +23,16 @@ export default async function Page({
         <div className="bg-red-50 border border-red-200 rounded-lg p-6">
           <p className="text-red-800">Error fetching post: {error.message}</p>
           <Link
-          className='text-blue-500 hover:underline mt-2 block'
-          href={"/blog"}
-          >Go back</Link>
+            className="text-blue-500 hover:underline mt-2 block"
+            href={"/blog"}
+          >
+            Go back
+          </Link>
         </div>
       </div>
     );
   }
-  
+
   return (
     <div className="max-w-3xl py-12 space-y-8 mx-4 md:mx-auto">
       <article>
@@ -40,16 +42,17 @@ export default async function Page({
           </h1>
           {post.created_at && (
             <time className="text-gray-500 text-lg">
-              {new Date(post.created_at).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
+              {new Date(post.created_at).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
               })}
             </time>
           )}
         </header>
 
-        <div className="prose prose-md prose-slate max-w-none
+        <div
+          className="prose prose-md prose-slate max-w-none
                       prose-headings:font-bold dark:prose-headings:text-gray-100 prose-headings:text-gray-900
                       dark:prose-p:text-gray-300 prose-p:text-gray-700 prose-p:leading-relaxed
                       prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
@@ -59,31 +62,52 @@ export default async function Page({
                       prose-blockquote:border-l-4 prose-blockquote:text-gray-100 dark:prose-blockquote:text-gray-100 prose-blockquote:border-blue-500 dark:prose-blockquote:border-blue-400 dark:prose-blockquote:bg-gray-600 prose-blockquote:bg-gray-100 prose-blockquote:py-2 prose-blockquote:px-4
                       prose-ul:list-disc prose-ol:list-decimal
                      dark:prose-li:text-gray-300 prose-li:text-gray-700
-                      prose-img:rounded-lg prose-img:shadow-lg">
+                      prose-img:rounded-lg prose-img:shadow-lg"
+        >
           <ReactMarkdown
             components={{
-              code({node, inline, className, children, ...props}: any) {
-                const match = /language-(\w+)/.exec(className || '');
+              code({ node, inline, className, children, ...props }: any) {
+                const match = /language-(\w+)/.exec(className || "");
                 return !inline && match ? (
                   <SyntaxHighlighter
                     style={ghcolors}
                     language={match[1]}
                     PreTag="pre"
                     customStyle={{
-                      borderRadius: '0.5rem',
-                      padding: '1rem',
-                      fontSize: '0.875rem'
+                      borderRadius: "0.5rem",
+                      padding: "1rem",
+                      fontSize: "0.875rem",
                     }}
                     {...props}
                   >
-                    {String(children).replace(/\n$/, '')}
+                    {String(children).replace(/\n$/, "")}
                   </SyntaxHighlighter>
                 ) : (
                   <code className={className} {...props}>
                     {children}
                   </code>
                 );
-              }
+              },
+
+              img({ src, alt }: any) {
+                if (src?.endsWith(".mp4")) {
+                  return (
+                    <div className="md-video">
+                      <video
+                        controls
+                        playsInline
+                        preload="metadata"
+                        style={{ width: "100%", borderRadius: "12px" }}
+                      >
+                        <source src={src} type="video/mp4" />
+                      </video>
+                      {alt && <div className="caption">{alt}</div>}
+                    </div>
+                  );
+                }
+
+                return <img src={src} alt={alt} />;
+              },
             }}
           >
             {post.content}
