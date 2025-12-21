@@ -11,6 +11,12 @@ const gameList = [
             "Use left/right or a/d keys to control a space ship. Move side to side to dodge the falling bombs.",
         url: "/games/bomb-dodge",
     },
+    {
+        title: "Weird inventions",
+        description:
+            "Can be found in game!",
+        url: "/games/weird-inventions",
+    },
 ];
 
 export default function Games() {
