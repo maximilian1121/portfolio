@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { FaHome, FaNewspaper, FaDownload, FaGamepad } from "react-icons/fa";
 import { Analytics } from "@vercel/analytics/react"
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -125,6 +126,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
 
+        <GoogleAnalytics gaId="G-W9TDY9BYSN" />
       </body>
     </html>
 
