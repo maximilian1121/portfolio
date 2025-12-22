@@ -1,4 +1,4 @@
-const gameList = [
+export const gameList = [
     {
         title: "Ai Cookie Clicker",
         description:
@@ -27,7 +27,7 @@ export default function Games() {
                 {gameList.map((game, i) => (
                     <div
                         key={i}
-                        className="relative w-[400px] bg-gray-800 rounded-lg p-4 hover:bg-gray-700 transition"
+                        className="relative w-[400px] bg-gray-200 dark:bg-gray-800 rounded-lg p-4 hover:bg-gray-300 dark:hover:bg-gray-700 transition"
                     >
                         <h1 className="text-3xl font-semibold mb-4">
                             {game.title}

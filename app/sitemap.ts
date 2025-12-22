@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
 import { supabase } from '../lib/supabaseClient';
+import { gameList } from './games/page';
 
 type Post = {
   id: string | number;
@@ -21,7 +22,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: `${baseUrl}/blog/${post.slug}`,
     lastModified: new Date(post.created_at),
     changeFrequency: 'weekly' as const,
-    priority: 0.3,
+    priority: 1,
+  }))
+
+  const gamesEntries: MetadataRoute.Sitemap = gameList.map((game) => ({
+    url: `${baseUrl}${game.url}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly' as const,
+    priority: 0.2,
   }))
 
   return [
@@ -43,6 +51,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'weekly' as const,
       priority: 0.5,
     },
-    ...postEntries,
+    ...postEntries,...gamesEntries,
   ]
 }

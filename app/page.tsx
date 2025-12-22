@@ -26,9 +26,16 @@ export default async function Page() {
         </div>
       </div>
       <div className="flex gap-10 align-top justify-center flex-col transition-all">
-        <div className="flex flex-row gap-10 justify-center align-middle flex-wrap md:flex-nowrap transition-all">
-          <img className="dark:hidden" src="/top-langs-light.svg" alt="Github top langs"/>
-          <img className="dark:block hidden" src="/top-langs.svg" alt="Github top langs dark"/>
+        <div className="flex flex-col md:text-2xl text-lg justify-center align-middle">
+          <h1 className="text-center">About me</h1>
+          <p className="mt-4 text-center">
+            Hi, I'm Maximilian. I'm spending a lot of my time to make a single Roblox game. I cant say just yet what it it is or what it's about, but I can say that it has car's
+            I love making games and I find that im really good at making funny additions to such games or Minecraft mods. 
+            Speaking of Minecraft mods, anyone who uses anything but fabric is WRONG! Fabric is my personal go to for making Mods
+            It's API I remember by heart and I love using it.
+            I also spend time working on side projects like this site. Thats not all tho, I also work on a few open source projects on GitHub.
+            I also game, duh. My favorite games of all time in order are probably Boneworks, Minecraft, and Roblox (the game studio).
+          </p>
         </div>
         <div className="flex flex-col md:text-2xl text-lg justify-center align-middle">
           <h1 className="text-center">Links</h1>

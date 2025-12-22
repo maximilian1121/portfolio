@@ -39,7 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 className="rounded-full h-7 w-7"
                 src="/icon"
               />
-              <span className="self-center text-xl text-heading font-semibold whitespace-nowrap">
+              <span className="self-center text-[#ededed] text-gray text-xl text-heading font-semibold whitespace-nowrap">
                 Maximilian the website
               </span>
             </Link>
@@ -59,7 +59,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
-                stroke="currentColor"
+                stroke="#ededed"
               >
                 <path strokeLinecap="round" strokeWidth="2" d="M5 7h14M5 12h14M5 17h14" />
               </svg>
