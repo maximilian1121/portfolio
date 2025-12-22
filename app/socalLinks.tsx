@@ -15,7 +15,7 @@ export default function SocialLinks() {
         <Link
           key={link.href}
           href={link.href}
-          className={`${link.bg} flex w-fit flex-row justify-center items-center gap-2 md:p-4 p-2 rounded-md hover:scale-[1.1] transition-all`}
+          className={`${link.bg} flex w-fit flex-row justify-center items-center gap-2 md:p-4 p-2 rounded-md hover:scale-[1.1] transition-all text-[#ededed]`}
         >
           <img
             className={`h-8 sm:h-6 ${!link.dontInvert ? 'invert brightness-0' : ''}`}
