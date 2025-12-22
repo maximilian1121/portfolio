@@ -1,10 +1,12 @@
 import ReactMarkdown from "react-markdown";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { ghcolors } from "react-syntax-highlighter/dist/esm/styles/prism";
+// CodeBlock is a client component handling syntax highlighting and copy functionality
+import CodeBlock from "./CodeBlock";
 import { Metadata, ResolvingMetadata } from "next";
 import { getPost } from "@/app/api/post/route";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import rehypeRaw from "rehype-raw";
+import React from "react";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -128,7 +130,7 @@ export default async function Page({
                       dark:prose-p:text-gray-300 prose-p:text-gray-700 prose-p:leading-relaxed
                       prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
                      dark:prose-strong:text-gray-100 prose-strong:text-gray-900 prose-strong:font-semibold
-                      prose-code:text-pink-600 dark:prose-code:text-pink-400 prose-code:bg-transparent prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:before:content-[''] prose-code:after:content-['']
+                      prose-code:text-gray-200 prose-code:font-mono prose-code:font-light prose-code:bg-gray-800 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:before:content-[''] prose-code:after:content-['']
                       prose-pre:bg-transparent prose-pre:p-0
                       prose-blockquote:border-l-4 prose-blockquote:text-gray-100 dark:prose-blockquote:text-gray-100 prose-blockquote:border-blue-500 dark:prose-blockquote:border-blue-400 dark:prose-blockquote:bg-gray-600 prose-blockquote:bg-gray-100 prose-blockquote:py-2 prose-blockquote:px-4
                       prose-ul:list-disc prose-ol:list-decimal
@@ -139,30 +141,11 @@ export default async function Page({
             rehypePlugins={[rehypeRaw]}
             components={
               {
-                code({ node, inline, className, children, ...props }: any) {
-                  const match = /language-(\w+)/.exec(className || "");
-                  return !inline && match ? (
-                    <SyntaxHighlighter
-                      style={ghcolors}
-                      language={match[1]}
-                      PreTag="pre"
-                      customStyle={{
-                        borderRadius: "0.5rem",
-                        padding: "1rem",
-                        fontSize: "0.875rem",
-                      }}
-                      {...props}
-                    >
-                      {String(children).replace(/\n$/, "")}
-                    </SyntaxHighlighter>
-                  ) : (
-                    <code className={className} {...props}>
-                      {children}
-                    </code>
-                  );
-                },
+                // Use the client-side CodeBlock component for rendering code blocks
+                code: CodeBlock,
 
                 img({ src, alt }: any) {
+                  // Video handling (unchanged)
                   if (src?.endsWith(".mp4")) {
                     return (
                       <span className="md-video" style={{ display: "block" }}>
@@ -178,6 +161,24 @@ export default async function Page({
                       </span>
                     );
                   }
+                  if (src && /\.(mp3|wav|ogg)$/i.test(src)) {
+                    return (
+                      <span className="md-audio" style={{ display: "block" }}>
+                        <audio
+                          controls
+                          preload="metadata"
+                          style={{ width: "100%" }}
+                        >
+                          <source
+                            src={src}
+                            type={`audio/${src.split(".").pop()?.toLowerCase()}`}
+                          />
+                          Your browser does not support the audio element.
+                        </audio>
+                      </span>
+                    );
+                  }
+                  // Default image rendering
                   return <img src={src} alt={alt} />;
                 },
 
@@ -189,7 +190,10 @@ export default async function Page({
                       style={{ border: 0, width: "100%", height: "190px" }}
                       frameBorder="0"
                       scrolling="no"
-                    />
+                    >
+                      Either your browser doesn't support iframes or steam is
+                      unavailable!
+                    </iframe>
                   );
                 },
               } as any

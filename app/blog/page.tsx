@@ -25,6 +25,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   const { data: posts, count } = await supabase
     .from('posts')
     .select('*', { count: 'exact' })
+    .neq("slug", "test")
     .order('created_at', { ascending: false })
     .range(from, to);
 
