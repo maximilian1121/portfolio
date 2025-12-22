@@ -21,7 +21,7 @@ export const getPost = cache(async (slug: string): Promise<Post | null> => {
     throw error;
   }
   if (data) {
-    // data.content = data.content.replaceAll("https://files.latific.click/file/", "/api/media/");
+    data.content = data.content.replaceAll("https://files.latific.click/file/", "/api/media/");
   }
   return data;
 });
