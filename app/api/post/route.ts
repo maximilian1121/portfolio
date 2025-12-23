@@ -7,6 +7,7 @@ export type Post = {
   slug: string;
   content: string;
   created_at: string | null;
+  upvotes: bigint;
 };
 
 export const getPost = cache(async (slug: string): Promise<Post | null> => {

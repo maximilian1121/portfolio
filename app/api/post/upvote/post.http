@@ -1,0 +1,2 @@
+POST http://localhost:3000/api/post/upvote?slug=1
+Cookie: anonymousUserToken=98565b96-e2a7-4b57-b312-cc4f5a2a2177

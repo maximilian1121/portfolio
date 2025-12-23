@@ -1,6 +1,7 @@
 import { supabase } from '../../lib/supabaseClient';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
+import GetAnonToken from './getAnonToken';
 
 type Post = {
   id: string | number;
@@ -71,6 +72,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
           </Link>
         )}
       </div>
+      <GetAnonToken/>
     </div>
   );
 }
