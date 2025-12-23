@@ -1,5 +1,3 @@
-export const runtime = "nodejs";
-
 import { cookies } from "next/headers";
 import { supabase } from "../../../../lib/supabaseClient";
 
