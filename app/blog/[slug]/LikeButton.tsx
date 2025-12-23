@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { FaSpinner, FaThumbsUp } from "react-icons/fa";
+import { getNewAnonToken } from "../getAnonToken";
 
 interface LikeButtonProps {
     post: any;
@@ -72,6 +73,9 @@ export default function LikeButton({ post }: LikeButtonProps) {
             })
             .catch((err) => {
                 console.error("Failed to like post:", err);
+                if (err.message == "Invalid anonymous user token") {
+                    getNewAnonToken()
+                }
                 setError(err.message || "Failed to like");
                 setShowError(true);
             })
