@@ -19,6 +19,7 @@
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.103.3",
     "@types/mdx": "^2.0.13",
+    "@vercel/analytics": "^2.0.1",
     "7.css": "^0.21.1",
     "install": "^0.13.0",
     "katex": "^0.16.45",
