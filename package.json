@@ -19,6 +19,7 @@
     "@supabase/supabase-js": "^2.103.3",
     "@types/mdx": "^2.0.13",
     "7.css": "^0.21.1",
+    "framer-motion": "^12.40.0",
     "install": "^0.13.0",
     "katex": "^0.16.45",
     "next": "16.2.4",
