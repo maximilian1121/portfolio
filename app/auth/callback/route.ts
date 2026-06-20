@@ -10,7 +10,7 @@ export async function GET(request: Request) {
         const supabase = await createClient(await cookies());
         const { error } = await supabase.auth.exchangeCodeForSession(code);
         if (!error) {
-            return NextResponse.redirect(`${origin}/games`);
+            return NextResponse.redirect(`${origin}/account`);
         }
     }
 

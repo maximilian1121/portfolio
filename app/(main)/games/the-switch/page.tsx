@@ -3,11 +3,12 @@ import { BreadcrumbEmitter } from "@/components/BreadcrumbEmitter";
 import { createClient } from "@/utils/supabase/client";
 import { useEffect, useState, useRef, useMemo } from "react";
 
+const supabase = createClient();
+
 export default function TheSwitch() {
     const [switchState, setSwitchState] = useState<boolean>(false);
     const [isPending, setIsPending] = useState<boolean>(false);
     const [onlineCount, setOnlineCount] = useState<number>(1);
-    const supabase = createClient();
 
     const lastClickTime = useRef<number>(0);
 

@@ -1,8 +1,9 @@
+import "7.css";
 import type { Metadata } from "next";
 import { Noto_Sans } from "next/font/google";
 import Image from "next/image";
 import "./globals.css";
-import "7.css";
+import { Analytics } from "@vercel/analytics/next";
 
 const notoSans = Noto_Sans({
     variable: "--font-noto-sans",
@@ -14,12 +15,10 @@ export const metadata: Metadata = {
     description: "My portfolio website built on Next and MUI",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
     children,
-    params,
 }: Readonly<{
     children: React.ReactNode;
-    params: {};
 }>) {
     return (
         <html lang="en" className={`${notoSans.variable} h-full antialiased`}>
@@ -31,6 +30,8 @@ export default function RootLayout({
                     className="fixed top-0 left-0 object-cover -z-10 select-none"
                     draggable={false}
                 />
+
+                <Analytics />
 
                 {children}
             </body>

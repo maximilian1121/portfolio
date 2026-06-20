@@ -93,7 +93,7 @@ const TumbleweedOverlay = () => {
             {weeds.map((weed) => (
                 <div
                     key={weed.id}
-                    className="absolute left-0 top-0"
+                    className="absolute left-0 top-0 -z-5"
                     style={{
                         transform: `translate3d(${weed.x}px, ${weed.y}px, 0)`,
                     }}

@@ -21,7 +21,7 @@ export default function ErrorTemplate({
     description,
     actions,
 }: Readonly<{
-    statusCode: number;
+    statusCode?: number | null;
     message: string;
     description: string;
     reset: () => void;
@@ -319,7 +319,9 @@ export default function ErrorTemplate({
                             : undefined,
                     }}
                 >
-                    <div className="title-bar-text">Error: {statusCode}</div>
+                    <div className="title-bar-text">
+                        Error{statusCode && `: ${statusCode}`}
+                    </div>
                     <div className="title-bar-controls">
                         <button
                             aria-label="Close"
@@ -345,18 +347,10 @@ export default function ErrorTemplate({
                             <h1 className="text-2xl">{angryMessage}</h1>
                         ) : (
                             <>
-                                <h1 className="text-2xl">{message}</h1>
-                                <p className="mt-2 text-sm">
-                                    {description}
-                                    <br />
-                                    Created by Google Gemini -{" "}
-                                    <Link
-                                        href="https://www.youtube.com/watch?v=5aV0f_q1-Jg"
-                                        target="_blank"
-                                    >
-                                        Yes its genai
-                                    </Link>
-                                </p>
+                                <h1 className="text-2xl capitalize">
+                                    {message}
+                                </h1>
+                                <p className="text-md">{description}</p>
                             </>
                         )}
                     </div>

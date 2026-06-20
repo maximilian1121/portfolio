@@ -5,12 +5,22 @@ import { useUserClient } from "@/hooks/use-user-client";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { Suspense, useEffect, useRef, useState } from "react";
-import { LuGamepad, LuHouse, LuScroll, LuSquareMenu } from "react-icons/lu";
+import { SnackbarProvider } from "notistack";
+import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import {
+    LuGamepad,
+    LuGitCommitHorizontal,
+    LuHouse,
+    LuScroll,
+    LuShield,
+    LuSquareMenu,
+} from "react-icons/lu";
 
 export default function MainAppBar({
+    gitSha = "dev",
     children,
 }: {
+    gitSha?: string | null;
     children: React.ReactNode;
 }) {
     const windowRef = useRef<HTMLDivElement | null>(null);
@@ -30,33 +40,45 @@ export default function MainAppBar({
 
     const pathSegments = pathname.split("/").filter(Boolean);
 
-    let navItems = [
-        { label: "Home", icon: <LuHouse size={16} />, href: "/" },
-        { label: "Blog", icon: <LuScroll size={16} />, href: "/blog" },
-        {
-            label: "Projects",
-            icon: <LuSquareMenu size={16} />,
-            href: "/projects",
-        },
-        { label: "Games", icon: <LuGamepad size={16} />, href: "/games" },
-    ];
+    const navItems = useMemo(() => {
+        const items = [
+            { label: "Home", icon: <LuHouse size={16} />, href: "/" },
+            { label: "Blog", icon: <LuScroll size={16} />, href: "/blog" },
+            {
+                label: "Projects",
+                icon: <LuSquareMenu size={16} />,
+                href: "/projects",
+            },
+            { label: "Games", icon: <LuGamepad size={16} />, href: "/games" },
+        ];
 
-    if (profile?.id && !loadingUser) {
-        navItems.push({
-            label: `Account${" - " + profile.username}`,
-            icon: (
-                <Image
-                    height={16}
-                    width={16}
-                    src={profile.avatar_url ?? ""}
-                    alt="Profile picture"
-                    unoptimized
-                    className="rounded-full"
-                />
-            ),
-            href: "/account",
-        });
-    }
+        if (!loadingUser && profile?.id) {
+            if (profile.id === "db8fb2a7-1709-4d17-aadd-cd65fa8ee72d") {
+                items.push({
+                    label: `Admin`,
+                    icon: <LuShield />,
+                    href: "/admin",
+                });
+            }
+
+            items.push({
+                label: `Account - ${profile.username}`,
+                icon: (
+                    <Image
+                        height={16}
+                        width={16}
+                        src={profile.avatar_url ?? "/default-avatar.png"}
+                        alt="Profile picture"
+                        unoptimized
+                        className="rounded-full"
+                    />
+                ),
+                href: "/account",
+            });
+        }
+
+        return items;
+    }, [profile, loadingUser]);
 
     return (
         <div className="max-h-dvh h-dvh w-screen sm:p-2 m-0 overflow-hidden bg-transparent">
@@ -130,6 +152,10 @@ export default function MainAppBar({
                                         : navItems.find((n) => n.href === href)
                                               ?.label || segment;
 
+                                if (label === "tos+ps") {
+                                    label = "TOS and Privacy policy";
+                                }
+
                                 return (
                                     <React.Fragment key={href}>
                                         <p className="text-black/70!">/</p>
@@ -152,10 +178,32 @@ export default function MainAppBar({
                         </div>
                     </nav>
 
-                    <main className="flex-1 overflow-auto text-black has-scrollbar p-2">
-                        <Suspense fallback={<Loading />}>{children}</Suspense>
-                    </main>
+                    <SnackbarProvider>
+                        <main className="flex-1 overflow-auto text-black has-scrollbar p-2">
+                            <Suspense fallback={<Loading />}>
+                                {children}
+                            </Suspense>
+                        </main>
+                    </SnackbarProvider>
                 </div>
+
+                <footer className="text-center flex justify-center gap-1">
+                    <Link href={"/tos+ps"}>TOS and Privacy policy</Link>&ndash;
+                    <p>{new Date().getFullYear()} MIT Licence Maximilian</p>
+                    &ndash;
+                    <Link
+                        href={
+                            gitSha !== "dev"
+                                ? "https://github.com/maximilian1121/portfolio/commit/" +
+                                  gitSha
+                                : "#"
+                        }
+                        className="flex items-center gap-1"
+                    >
+                        <LuGitCommitHorizontal />
+                        {gitSha?.slice(0, 8)}
+                    </Link>
+                </footer>
             </div>
         </div>
     );

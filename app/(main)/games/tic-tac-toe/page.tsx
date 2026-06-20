@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/client";
 import SignInForm from "@/components/SignInForm";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useUserClient } from "@/hooks/use-user-client";
+import { UserTag } from "./UserTag";
 
 type Player = "X" | "O";
 type Board = (Player | null)[];
@@ -40,11 +41,6 @@ function checkWinner(board: Board): Player | "draw" | null {
     if (board.every(Boolean)) return "draw";
     return null;
 }
-
-const profileCache = new Map<
-    string,
-    { username: string; avatar_url: string }
->();
 
 export default function TicTacToe() {
     const supabase = createClient();
@@ -148,7 +144,20 @@ export default function TicTacToe() {
                     setPlayerOId(row.player_o);
                 },
             )
-            .subscribe();
+            .on("presence", { event: "leave" }, ({ leftPresences }) => {
+                const otherPlayer = player === "X" ? "O" : "X";
+                const didOpponentLeave = leftPresences.some(
+                    (p: any) => p.player === otherPlayer,
+                );
+                if (didOpponentLeave) {
+                    setStatus("abandoned");
+                }
+            })
+            .subscribe(async (status) => {
+                if (status === "SUBSCRIBED") {
+                    await channel.track({ player, userId });
+                }
+            });
 
         return () => {
             supabase.removeChannel(channel);
@@ -353,65 +362,6 @@ export default function TicTacToe() {
         );
     }
 
-    const UserTag = ({
-        id,
-        type = "X",
-    }: {
-        id?: string | null;
-        type: string;
-    }) => {
-        const [username, setUsername] = useState<string>("");
-        const [pfp, setPfp] = useState<string>("");
-
-        useEffect(() => {
-            if (!id) return;
-
-            if (id === userId) {
-                setUsername(profile?.username ?? "You");
-                setPfp(profile?.avatar_url ?? "");
-                return;
-            }
-
-            if (profileCache.has(id)) {
-                const cached = profileCache.get(id)!;
-                setUsername(cached.username);
-                setPfp(cached.avatar_url);
-                return;
-            }
-
-            const fetchProfile = async () => {
-                const { data, error } = await supabase
-                    .from("profiles")
-                    .select("username, avatar_url")
-                    .eq("id", id)
-                    .single();
-
-                if (!error && data) {
-                    profileCache.set(id, data); // 💾 store it
-                    setUsername(data.username);
-                    setPfp(data.avatar_url);
-                } else {
-                    setUsername("Unknown");
-                }
-            };
-
-            fetchProfile();
-        }, [id]);
-
-        return (
-            <span className="flex items-center gap-1">
-                <p>{type}:</p>
-                <img
-                    className="rounded-full"
-                    src={pfp || "/default-avatar.png"}
-                    width={16}
-                    height={16}
-                />
-                <p>{username || "Loading..."}</p>
-            </span>
-        );
-    };
-
     return (
         <div className="flex flex-wrap gap-4 p-6 justify-center">
             <div className="window glass w-72 h-full">
@@ -453,6 +403,16 @@ export default function TicTacToe() {
                     {winner && (
                         <button onClick={restartMatch}>Play Again</button>
                     )}
+
+                    {status === "abandoned" && (
+                        <p className="text-xs text-red-500">
+                            Opponent disconnected!
+                        </p>
+                    )}
+
+                    {(winner || status === "abandoned") && (
+                        <button onClick={restartMatch}>Play Again</button>
+                    )}
                 </div>
             </div>
 
@@ -477,7 +437,13 @@ export default function TicTacToe() {
                     <div className="window-body p-3 text-xs flex flex-col gap-2">
                         <span className="opacity-70">
                             {playerXId ? (
-                                <UserTag id={playerXId} type="X" />
+                                <UserTag
+                                    id={playerXId}
+                                    type="X"
+                                    userId={userId}
+                                    profile={profile}
+                                    supabase={supabase}
+                                />
                             ) : (
                                 "Waiting..."
                             )}
@@ -485,7 +451,13 @@ export default function TicTacToe() {
 
                         <span className="opacity-70">
                             {playerOId ? (
-                                <UserTag id={playerOId} type="O" />
+                                <UserTag
+                                    id={playerOId}
+                                    type="O"
+                                    userId={userId}
+                                    profile={profile}
+                                    supabase={supabase}
+                                />
                             ) : (
                                 "Waiting..."
                             )}

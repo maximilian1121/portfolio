@@ -1,5 +1,6 @@
 "use client";
 
+import { Link } from "@mui/material";
 import ErrorTemplate from "../components/error-template";
 
 const notFoundMessages: string[] = [

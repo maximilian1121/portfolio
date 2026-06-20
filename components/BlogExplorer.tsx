@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Blog } from "@/app/types";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
-import { Blog } from "@/app/types";
+import { useEffect, useState } from "react";
 import Explorer from "./Explorer";
-import { useMDXComponents } from "@/mdx-components";
 
 export default function BlogExplorer({
     initialBlogs,
@@ -138,7 +137,7 @@ export default function BlogExplorer({
                         <Link
                             href={`/blog/${blog.slug}`}
                             role="button"
-                            className="min-w-15 text-black no-underline"
+                            className="py-2! px-8! text-black no-underline"
                         >
                             Open
                         </Link>

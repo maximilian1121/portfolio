@@ -5,7 +5,7 @@ import SignInForm from "@/components/SignInForm";
 import Link from "next/link";
 import { useState } from "react";
 
-const GAMES_DATA = [
+export const GAMES_DATA = [
     {
         id: "the-switch",
         title: "The Switch",
@@ -79,7 +79,7 @@ export default function Games() {
                             <Link
                                 role="button"
                                 href={game.link}
-                                className="py-1 text-black no-underline"
+                                className="py-2! px-8! text-black no-underline"
                             >
                                 Play
                             </Link>
