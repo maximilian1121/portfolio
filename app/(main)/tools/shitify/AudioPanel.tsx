@@ -17,8 +17,12 @@ function qualityToBitrateKbps(quality: number) {
     return Math.round(8 + (clamped / 100) * 312);
 }
 
+const SAMPLE_RATES = [8000, 11025, 16000, 22050, 24000, 32000, 44100, 48000];
+
 export default function AudioPanel({ file }: AudioPanelProps) {
     const [quality, setQuality] = useState(50);
+    const [sampleRate, setSampleRate] = useState(44100);
+    const [channels, setChannels] = useState<"mono" | "stereo">("stereo");
     const [status, setStatus] = useState<
         "idle" | "loading-ffmpeg" | "encoding" | "done" | "error"
     >("idle");
@@ -55,6 +59,10 @@ export default function AudioPanel({ file }: AudioPanelProps) {
                 "libmp3lame",
                 "-b:a",
                 `${qualityToBitrateKbps(quality)}k`,
+                "-ar",
+                String(sampleRate),
+                "-ac",
+                channels === "mono" ? "1" : "2",
                 outputName,
             ]);
 
@@ -118,6 +126,37 @@ export default function AudioPanel({ file }: AudioPanelProps) {
                             onChange={(e) => setQuality(Number(e.target.value))}
                             disabled={isBusy}
                         />
+
+                        <label htmlFor="audio-sample-rate-select">
+                            Sample rate
+                        </label>
+                        <select
+                            id="audio-sample-rate-select"
+                            value={sampleRate}
+                            onChange={(e) =>
+                                setSampleRate(Number(e.target.value))
+                            }
+                            disabled={isBusy}
+                        >
+                            {SAMPLE_RATES.map((hz) => (
+                                <option key={hz} value={hz}>
+                                    {hz.toLocaleString()} Hz
+                                </option>
+                            ))}
+                        </select>
+
+                        <label htmlFor="audio-channels-select">Channels</label>
+                        <select
+                            id="audio-channels-select"
+                            value={channels}
+                            onChange={(e) =>
+                                setChannels(e.target.value as "mono" | "stereo")
+                            }
+                            disabled={isBusy}
+                        >
+                            <option value="stereo">Stereo</option>
+                            <option value="mono">Mono</option>
+                        </select>
                     </div>
 
                     {isBusy && (

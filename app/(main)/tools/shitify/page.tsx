@@ -1,7 +1,7 @@
 "use client";
 
 import { getFileKind } from "@/lib/shitify/file-kind";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AudioPanel from "./AudioPanel";
 import FileDropzone from "./FileDropzone";
 import ImagePanel from "./ImagePanel";
@@ -11,6 +11,15 @@ import VideoPanel from "./VideoPanel";
 export default function Shitify() {
     const [file, setFile] = useState<File | null>(null);
     const kind = file ? getFileKind(file) : null;
+
+    useEffect(() => {
+        if (typeof window !== "undefined" && !window.crossOriginIsolated) {
+            alert(
+                "The page is about to refresh due to some weird issues surrounding cross-origin isolation.",
+            );
+            window.location.reload();
+        }
+    }, []);
 
     return (
         <div

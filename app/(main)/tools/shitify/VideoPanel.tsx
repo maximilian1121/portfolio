@@ -2,6 +2,7 @@
 
 import { getFFmpeg } from "@/lib/shitify/ffmpeg-client";
 import { useObjectUrl } from "@/lib/shitify/use-object-url";
+import { Tooltip } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 
 type VideoPanelProps = { file: File };
@@ -17,8 +18,15 @@ function qualityToCrf(quality: number) {
     return Math.round(51 - (clamped / 100) * 33);
 }
 
+const SAMPLE_RATES = [8000, 11025, 16000, 22050, 24000, 32000, 44100, 48000];
+
 export default function VideoPanel({ file }: VideoPanelProps) {
     const [quality, setQuality] = useState(50);
+    const [threads, setThreads] = useState(2);
+    const [resolutionScale, setResolutionScale] = useState(100); // % of original
+    const [fps, setFps] = useState(30);
+    const [audioBitrate, setAudioBitrate] = useState(96); // kbps
+    const [sampleRate, setSampleRate] = useState(44100); // Hz
     const [status, setStatus] = useState<
         "idle" | "loading-ffmpeg" | "encoding" | "finalizing" | "done" | "error"
     >("idle");
@@ -87,23 +95,38 @@ export default function VideoPanel({ file }: VideoPanelProps) {
                 new Uint8Array(await file.arrayBuffer()),
             );
 
-            await ffmpeg.exec([
-                "-i",
-                inputName,
+            const args = ["-i", inputName];
+
+            if (resolutionScale < 100) {
+                const factor = resolutionScale / 100;
+                // trunc(...*2)*2 keeps both dims even, which libx264 requires.
+                args.push(
+                    "-vf",
+                    `scale=trunc(iw*${factor}/2)*2:trunc(ih*${factor}/2)*2`,
+                );
+            }
+
+            args.push(
                 "-threads",
-                "2",
+                String(threads),
                 "-vcodec",
                 "libx264",
                 "-crf",
                 String(qualityToCrf(quality)),
                 "-preset",
                 "ultrafast",
+                "-r",
+                String(fps),
                 "-acodec",
                 "aac",
                 "-b:a",
-                "96k",
+                `${audioBitrate}k`,
+                "-ar",
+                String(sampleRate),
                 outputName,
-            ]);
+            );
+
+            await ffmpeg.exec(args);
 
             // exec() has resolved but we still need to pull the file out of
             // ffmpeg's virtual FS and build a blob — give that its own
@@ -176,6 +199,102 @@ export default function VideoPanel({ file }: VideoPanelProps) {
                             step={0.01}
                             value={quality}
                             onChange={(e) => setQuality(Number(e.target.value))}
+                            disabled={isBusy}
+                        />
+
+                        <Tooltip
+                            title={
+                                "Scales the video's width and height down before encoding. Lower = blockier and smaller."
+                            }
+                        >
+                            <label htmlFor="video-resolution-slider">
+                                Resolution: {resolutionScale}%
+                            </label>
+                        </Tooltip>
+                        <input
+                            id="video-resolution-slider"
+                            type="range"
+                            min={5}
+                            max={100}
+                            step={1}
+                            value={resolutionScale}
+                            onChange={(e) =>
+                                setResolutionScale(Number(e.target.value))
+                            }
+                            disabled={isBusy}
+                        />
+
+                        <Tooltip
+                            title={
+                                "Lower frame rates make motion choppier and shrink the file."
+                            }
+                        >
+                            <label htmlFor="video-fps-slider">
+                                Frame rate: {fps} fps
+                            </label>
+                        </Tooltip>
+                        <input
+                            id="video-fps-slider"
+                            type="range"
+                            min={1}
+                            max={60}
+                            step={1}
+                            value={fps}
+                            onChange={(e) => setFps(Number(e.target.value))}
+                            disabled={isBusy}
+                        />
+
+                        <label htmlFor="video-audio-bitrate-slider">
+                            Audio bitrate: {audioBitrate} kbps
+                        </label>
+                        <input
+                            id="video-audio-bitrate-slider"
+                            type="range"
+                            min={8}
+                            max={320}
+                            step={8}
+                            value={audioBitrate}
+                            onChange={(e) =>
+                                setAudioBitrate(Number(e.target.value))
+                            }
+                            disabled={isBusy}
+                        />
+
+                        <label htmlFor="video-sample-rate-select">
+                            Sample rate
+                        </label>
+                        <select
+                            id="video-sample-rate-select"
+                            value={sampleRate}
+                            onChange={(e) =>
+                                setSampleRate(Number(e.target.value))
+                            }
+                            disabled={isBusy}
+                        >
+                            {SAMPLE_RATES.map((hz) => (
+                                <option key={hz} value={hz}>
+                                    {hz.toLocaleString()} Hz
+                                </option>
+                            ))}
+                        </select>
+
+                        <Tooltip
+                            title={
+                                "More threads can speed up encoding, but will use more CPU. You also probably dont want to exeed the amount of cores on your CPU."
+                            }
+                        >
+                            <label htmlFor="video-threads-slider">
+                                Threads: {threads}
+                            </label>
+                        </Tooltip>
+                        <input
+                            id="video-threads-slider"
+                            type="range"
+                            min={1}
+                            max={5}
+                            step={1}
+                            value={threads}
+                            onChange={(e) => setThreads(Number(e.target.value))}
                             disabled={isBusy}
                         />
                     </div>
