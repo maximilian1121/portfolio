@@ -10,6 +10,7 @@ import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import {
     LuGamepad,
     LuGitCommitHorizontal,
+    LuHammer,
     LuHouse,
     LuScroll,
     LuShield,
@@ -26,7 +27,7 @@ export default function MainAppBar({
     const windowRef = useRef<HTMLDivElement | null>(null);
     const pathname = usePathname();
     const [dynamicTitle, setDynamicTitle] = useState("");
-    const { user, profile, loading: loadingUser } = useUserClient();
+    const { profile, loading: loadingUser } = useUserClient();
 
     useEffect(() => {
         const handleEvent = (e: any) => setDynamicTitle(e.detail);
@@ -49,6 +50,7 @@ export default function MainAppBar({
                 icon: <LuSquareMenu size={16} />,
                 href: "/projects",
             },
+            { label: "Tools", icon: <LuHammer size={16} />, href: "/tools" },
             { label: "Games", icon: <LuGamepad size={16} />, href: "/games" },
         ];
 
@@ -89,7 +91,7 @@ export default function MainAppBar({
                 <div className="title-bar">
                     <div className="title-bar-text flex items-center gap-2">
                         <Image src="/icon" alt="Icon" width={16} height={16} />{" "}
-                        Maximilian's amazing site
+                        Maximilian&apos;s amazing site
                     </div>
                     <div className="title-bar-controls">
                         <button aria-label="Minimize" disabled />
@@ -100,7 +102,7 @@ export default function MainAppBar({
                                     document.exitFullscreen();
                                 }
                                 if (windowRef.current) {
-                                    windowRef.current.requestFullscreen();
+                                    document.body.requestFullscreen();
                                 }
                             }}
                         />

@@ -23,10 +23,10 @@ export default async function RootLayout({
     return (
         <html lang="en" className={`${notoSans.variable} h-full antialiased`}>
             <body className="min-h-full flex flex-col win7 overflow-hidden">
-                <Image
+                {/*eslint-disable-next-line @next/next/no-img-element*/}
+                <img
                     src="/win7wp.jpg"
                     alt="Background"
-                    fill
                     className="fixed top-0 left-0 object-cover -z-10 select-none"
                     draggable={false}
                 />

@@ -1,0 +1,26 @@
+.shitify-dropzone {
+    border: 2px dashed #8a8a8a;
+    background: #ece9d8;
+    box-shadow:
+        inset 1px 1px 0 #fff,
+        inset -1px -1px 0 #808080;
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    cursor: pointer;
+}
+
+.shitify-dropzone.is-active {
+    border-color: #2a6dbf;
+    background: #dbeaf8;
+}
+
+.shitify-dropzone-title {
+    font-weight: bold;
+    margin: 0 0 0.25rem;
+}
+
+.shitify-dropzone-hint {
+    margin: 0;
+    opacity: 0.7;
+    font-size: 0.85rem;
+}
