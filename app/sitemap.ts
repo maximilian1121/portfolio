@@ -1,7 +1,8 @@
 import { createClient } from "@/utils/supabase/server";
 import type { MetadataRoute } from "next";
 import { cookies } from "next/headers";
-import { GAMES_DATA } from "./(main)/games/page";
+import { GAMES_DATA } from "./(main)/games/data";
+import { TOOLS_DATA } from "./(main)/tools/data";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const supabase = await createClient(await cookies());
@@ -28,6 +29,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.7,
     }));
 
+    const toolRoutes: MetadataRoute.Sitemap = TOOLS_DATA.map((tool) => ({
+        url: `https://latific.click${tool.link}`,
+        lastModified: new Date(),
+        changeFrequency: "monthly",
+        priority: 0.6,
+    }));
+
     return [
         {
             url: "https://latific.click",
@@ -49,5 +57,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         },
         ...blogRoutes,
         ...gameRoutes,
+        ...toolRoutes,
     ];
 }
