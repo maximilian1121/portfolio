@@ -87,7 +87,7 @@ export default function MainAppBar({
     if (isEmbed) {
         return (
             <SnackbarProvider>
-                <div className="w-screen h-screen overflow-hidden bg-white">
+                <div className="w-screen h-screen overflow-hidden bg-(--w7-surface)">
                     <Suspense fallback={<Loading />}>{children}</Suspense>
                 </div>
             </SnackbarProvider>
