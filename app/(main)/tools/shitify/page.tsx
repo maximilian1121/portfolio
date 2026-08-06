@@ -7,13 +7,20 @@ import FileDropzone from "./FileDropzone";
 import ImagePanel from "./ImagePanel";
 import "./shitify.css";
 import VideoPanel from "./VideoPanel";
+import { useSearchParams } from "next/navigation";
 
 export default function Shitify() {
     const [file, setFile] = useState<File | null>(null);
     const kind = file ? getFileKind(file) : null;
+    const searchParams = useSearchParams();
+    const isEmbed = searchParams.get("embed") === "true";
 
     useEffect(() => {
-        if (typeof window !== "undefined" && !window.crossOriginIsolated) {
+        if (
+            typeof window !== "undefined" &&
+            !window.crossOriginIsolated &&
+            !isEmbed
+        ) {
             alert(
                 "The page is about to refresh due to some weird issues surrounding cross-origin isolation.",
             );
