@@ -4,7 +4,7 @@ import Loading from "@/app/(main)/blog/[slug]/loading";
 import { useUserClient } from "@/hooks/use-user-client";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { SnackbarProvider } from "notistack";
 import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -28,6 +28,8 @@ export default function MainAppBar({
     const pathname = usePathname();
     const [dynamicTitle, setDynamicTitle] = useState("");
     const { profile, loading: loadingUser } = useUserClient();
+    const searchParams = useSearchParams();
+    const isEmbed = searchParams.get("embed") === "true";
 
     useEffect(() => {
         const handleEvent = (e: any) => setDynamicTitle(e.detail);
@@ -81,6 +83,14 @@ export default function MainAppBar({
 
         return items;
     }, [profile, loadingUser]);
+
+    if (isEmbed) {
+        return (
+            <SnackbarProvider>
+                <Suspense fallback={<Loading />}>{children}</Suspense>
+            </SnackbarProvider>
+        );
+    }
 
     return (
         <div className="max-h-dvh h-dvh w-screen sm:p-2 m-0 overflow-hidden bg-transparent">
