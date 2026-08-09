@@ -8,6 +8,7 @@ import ImagePanel from "./ImagePanel";
 import "./shitify.css";
 import VideoPanel from "./VideoPanel";
 import { useSearchParams } from "next/navigation";
+import GifPanel from "./GifPanel";
 
 export default function Shitify() {
     const [file, setFile] = useState<File | null>(null);
@@ -52,12 +53,18 @@ export default function Shitify() {
                             </a>
                         </p>
 
-                        {kind === "image" && (
-                            <ImagePanel
-                                key={file.name + file.size}
-                                file={file}
-                            />
-                        )}
+                        {kind === "image" &&
+                            (file.type === "image/gif" ? (
+                                <GifPanel
+                                    key={file.name + file.size}
+                                    file={file}
+                                />
+                            ) : (
+                                <ImagePanel
+                                    key={file.name + file.size}
+                                    file={file}
+                                />
+                            ))}
                         {kind === "video" && (
                             <VideoPanel
                                 key={file.name + file.size}

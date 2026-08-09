@@ -23,10 +23,15 @@ export default function AudioPanel({ file }: AudioPanelProps) {
     const [quality, setQuality] = useState(50);
     const [sampleRate, setSampleRate] = useState(44100);
     const [channels, setChannels] = useState<"mono" | "stereo">("stereo");
+    const [passes, setPasses] = useState(1);
     const [status, setStatus] = useState<
         "idle" | "loading-ffmpeg" | "encoding" | "done" | "error"
     >("idle");
     const [progress, setProgress] = useState(0);
+    const [passInfo, setPassInfo] = useState<{
+        total: number;
+        current: number;
+    } | null>(null);
     const previewUrl = useObjectUrl(file);
     const [outputUrl, setOutputUrl] = useState<string | null>(null);
     const [outputSize, setOutputSize] = useState<number | null>(null);
@@ -35,38 +40,89 @@ export default function AudioPanel({ file }: AudioPanelProps) {
         try {
             setStatus("loading-ffmpeg");
             setProgress(0);
+            setPassInfo(null);
 
             const ffmpeg = await getFFmpeg();
-            ffmpeg.on("progress", ({ progress: p }) =>
-                setProgress(Math.min(1, Math.max(0, p))),
-            );
 
             setStatus("encoding");
 
             const inputName =
                 "input" + (file.name.match(/\.[^.]+$/)?.[0] ?? ".mp3");
-            const outputName = "output.mp3";
 
             await ffmpeg.writeFile(
                 inputName,
                 new Uint8Array(await file.arrayBuffer()),
             );
 
-            await ffmpeg.exec([
-                "-i",
-                inputName,
-                "-acodec",
-                "libmp3lame",
-                "-b:a",
-                `${qualityToBitrateKbps(quality)}k`,
-                "-ar",
-                String(sampleRate),
-                "-ac",
-                channels === "mono" ? "1" : "2",
-                outputName,
-            ]);
+            const kbps = qualityToBitrateKbps(quality);
+            const totalPasses = Math.max(1, Math.round(passes));
 
-            const data = await ffmpeg.readFile(outputName);
+            // The whole "compress the compression" bit: lame it down to
+            // garbage, decode that garbage back to full PCM (the
+            // "upscale"), then lame it down again from there. The wav
+            // round trip doesn't recover any of the lost detail, it just
+            // hands the next mp3 pass a clean canvas to smear the same
+            // artifacts onto again, so they compound instead of just
+            // re-applying the same loss once.
+            let currentInput = inputName;
+            let currentIsMp3 = false;
+            const tempFiles: string[] = [];
+
+            for (let p = 1; p <= totalPasses; p++) {
+                setPassInfo({ total: totalPasses, current: p });
+                setProgress((p - 1) / totalPasses);
+
+                const mp3Out = `pass_${p}.mp3`;
+                await ffmpeg.exec([
+                    "-i",
+                    currentInput,
+                    "-acodec",
+                    "libmp3lame",
+                    "-b:a",
+                    `${kbps}k`,
+                    "-ar",
+                    String(sampleRate),
+                    "-ac",
+                    channels === "mono" ? "1" : "2",
+                    mp3Out,
+                ]);
+
+                if (currentIsMp3) {
+                    tempFiles.push(currentInput);
+                }
+
+                if (p === totalPasses) {
+                    // Last pass: leave it as mp3, that's the final output.
+                    currentInput = mp3Out;
+                    currentIsMp3 = true;
+                    break;
+                }
+
+                // "Upscale" back to full PCM so the next pass has fresh,
+                // un-quantized samples to mangle instead of piling
+                // straight mp3-on-mp3 (ffmpeg would do this implicitly
+                // anyway, but doing it explicitly is the whole point).
+                const wavOut = `pass_${p}.wav`;
+                await ffmpeg.exec([
+                    "-i",
+                    mp3Out,
+                    "-ar",
+                    String(sampleRate),
+                    "-ac",
+                    channels === "mono" ? "1" : "2",
+                    wavOut,
+                ]);
+
+                tempFiles.push(mp3Out);
+                currentInput = wavOut;
+                currentIsMp3 = false;
+
+                setProgress(p / totalPasses);
+            }
+
+            setProgress(1);
+
+            const data = await ffmpeg.readFile(currentInput);
             const blob = new Blob([new Uint8Array(data as Uint8Array)], {
                 type: "audio/mpeg",
             });
@@ -78,8 +134,11 @@ export default function AudioPanel({ file }: AudioPanelProps) {
             setOutputSize(blob.size);
             setStatus("done");
 
-            await ffmpeg.deleteFile(inputName);
-            await ffmpeg.deleteFile(outputName);
+            await ffmpeg.deleteFile(inputName).catch(() => {});
+            await ffmpeg.deleteFile(currentInput).catch(() => {});
+            for (const f of tempFiles) {
+                await ffmpeg.deleteFile(f).catch(() => {});
+            }
         } catch (err) {
             console.error(err);
             setStatus("error");
@@ -89,6 +148,15 @@ export default function AudioPanel({ file }: AudioPanelProps) {
     const downloadName = file.name.replace(/\.[^.]+$/, "") + "-trashified.mp3";
     const isBusy = status === "loading-ffmpeg" || status === "encoding";
     const bitrate = qualityToBitrateKbps(quality);
+
+    const statusLabel =
+        status === "loading-ffmpeg"
+            ? "Loading engine…"
+            : status === "encoding"
+              ? passInfo && passInfo.total > 1
+                  ? `Recompressing the compression, pass ${passInfo.current}/${passInfo.total}…`
+                  : "Shitifying…"
+              : "Shitify";
 
     return (
         <fieldset>
@@ -124,6 +192,20 @@ export default function AudioPanel({ file }: AudioPanelProps) {
                             step={0.01}
                             value={quality}
                             onChange={(e) => setQuality(Number(e.target.value))}
+                            disabled={isBusy}
+                        />
+
+                        <label htmlFor="audio-passes-slider">
+                            Recompression passes: {passes}
+                        </label>
+                        <input
+                            id="audio-passes-slider"
+                            type="range"
+                            min={1}
+                            max={10}
+                            step={1}
+                            value={passes}
+                            onChange={(e) => setPasses(Number(e.target.value))}
                             disabled={isBusy}
                         />
 
@@ -186,11 +268,7 @@ export default function AudioPanel({ file }: AudioPanelProps) {
                             onClick={run}
                             disabled={isBusy}
                         >
-                            {status === "loading-ffmpeg"
-                                ? "Loading engine…"
-                                : status === "encoding"
-                                  ? "Shitifying…"
-                                  : "Shitify"}
+                            {statusLabel}
                         </button>
 
                         <button

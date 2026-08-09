@@ -37,3 +37,21 @@ export async function getFFmpeg(): Promise<FFmpeg> {
 
     return loadingPromise;
 }
+
+// Kills the current ffmpeg worker and clears the singleton so the next
+// getFFmpeg() call spins up a brand new one with a clean WASM heap.
+// The core never frees memory between exec() calls on its own, it only
+// grows, so heavy callers (looping exec many times, like frame-by-frame
+// gif crunching) should call this once they're done to avoid slowly
+// filling the same instance until it traps with an out of bounds error.
+export async function resetFFmpeg(): Promise<void> {
+    if (ffmpegInstance) {
+        try {
+            ffmpegInstance.terminate();
+        } catch {
+            // already dead or mid-terminate, nothing to clean up
+        }
+    }
+    ffmpegInstance = null;
+    loadingPromise = null;
+}
