@@ -23,7 +23,7 @@ export default function ErrorTemplate({
 }: Readonly<{
     statusCode?: number | null;
     message: string;
-    description: string;
+    description: string | React.ReactNode;
     reset: () => void;
     actions: React.ReactNode[];
 }>) {
