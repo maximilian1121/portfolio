@@ -5,9 +5,3 @@ export type Blog = {
     slug: string;
     created_at: string;
 };
-
-import * as React from "react";
-
-declare module "mdx/types.js" {
-    export import JSX = React.JSX;
-}

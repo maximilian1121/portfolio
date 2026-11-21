@@ -1,14 +1,14 @@
 "use client";
 
-import { getFileKind } from "@/lib/shitify/file-kind";
+import { getFileKind } from "@/features/tools/shitify/lib/file-kind";
 import { useEffect, useState } from "react";
-import AudioPanel from "./AudioPanel";
-import FileDropzone from "./FileDropzone";
-import ImagePanel from "./ImagePanel";
-import "./shitify.css";
-import VideoPanel from "./VideoPanel";
+import AudioPanel from "@/features/tools/shitify/AudioPanel";
+import FileDropzone from "@/features/tools/shitify/FileDropzone";
+import ImagePanel from "@/features/tools/shitify/ImagePanel";
+import "@/features/tools/shitify/shitify.css";
+import VideoPanel from "@/features/tools/shitify/VideoPanel";
 import { useSearchParams } from "next/navigation";
-import GifPanel from "./GifPanel";
+import GifPanel from "@/features/tools/shitify/GifPanel";
 
 export default function Shitify() {
     const [file, setFile] = useState<File | null>(null);

@@ -1,6 +1,7 @@
 "use client";
 
-import Link from "next/link";
+import ErrorWindow from "./ErrorWindow";
+import PhysicsControls from "./PhysicsControls";
 import React, {
     useCallback,
     useEffect,
@@ -296,10 +297,17 @@ export default function ErrorTemplate({
                 .heavy-shake { animation: heavy-shake 0.1s infinite; }
                 .bubble-container { position: absolute; top: -50px; right: -10px; z-index: 20; pointer-events: none; }
             `}</style>
-            <div
-                ref={windowRef}
-                className={`window glass active max-w-md w-full fixed select-none ${getShakeIntensity()}`}
-                style={{
+            <ErrorWindow
+                statusCode={statusCode}
+                message={message}
+                description={description}
+                actions={actions}
+                angry={isAngry}
+                shakeIntensity={getShakeIntensity()}
+                angryMessage={angryMessage}
+                hasGravity={hasGravity}
+                windowRef={windowRef}
+                windowStyle={{
                     ...getPositionStyles(),
                     margin: 0,
                     zIndex: 10,
@@ -307,157 +315,56 @@ export default function ErrorTemplate({
                         ? `rgb(${128 + clickCount * 25}, 0, 0)`
                         : undefined,
                 }}
-            >
-                <div
-                    className="title-bar"
-                    onMouseDown={onMouseDown}
-                    onTouchStart={onTouchStart}
-                    style={{
-                        cursor: isDragging ? "grabbing" : "grab",
-                        backgroundColor: isAngry
-                            ? `rgb(${128 + clickCount * 25}, 0, 0)`
-                            : undefined,
-                    }}
-                >
-                    <div className="title-bar-text">
-                        Error{statusCode && `: ${statusCode}`}
-                    </div>
-                    <div className="title-bar-controls">
-                        <button
-                            aria-label="Close"
-                            onClick={() =>
-                                setClickCount((c) => {
-                                    const next = c + 1;
-                                    if (next >= 6 && !hasGravity) {
-                                        velocityRef.current = {
-                                            x: (Math.random() - 0.5) * 20,
-                                            y: -15,
-                                        };
-                                        setHasGravity(true);
-                                    }
-                                    return next;
-                                })
-                            }
-                        />
-                    </div>
-                </div>
-                {!hasGravity ? (
-                    <div className="window-body has-space">
-                        {isAngry ? (
-                            <h1 className="text-2xl">{angryMessage}</h1>
-                        ) : (
-                            <>
-                                <h1 className="text-2xl capitalize">
-                                    {message}
-                                </h1>
-                                <p className="text-md">{description}</p>
-                            </>
-                        )}
-                    </div>
-                ) : (
-                    <div className="window-body has-space">
-                        <h1 className="text-lg">
-                            Critical error occurred when trying to compute next
-                            anger message!
-                        </h1>
-                    </div>
-                )}
-                <footer>
-                    <div className="flex gap-4">{actions}</div>
-                </footer>
-            </div>
+                titleBarStyle={{
+                    backgroundColor: isAngry
+                        ? `rgb(${128 + clickCount * 25}, 0, 0)`
+                        : undefined,
+                }}
+                isDragging={isDragging}
+                onClose={() =>
+                    setClickCount((count) => {
+                        const next = count + 1;
+                        if (next >= 6 && !hasGravity) {
+                            velocityRef.current = {
+                                x: (Math.random() - 0.5) * 20,
+                                y: -15,
+                            };
+                            setHasGravity(true);
+                        }
+                        return next;
+                    })
+                }
+                onMouseDown={onMouseDown}
+                onTouchStart={onTouchStart}
+            />
             {hasGravity && (
-                <div
-                    className="window glass active select-none max-w-sm"
-                    style={{
-                        position: "fixed",
-                        bottom: 20,
-                        right: 20,
-                        zIndex: 100,
+                <PhysicsControls
+                    gyroEnabled={gyroEnabled}
+                    minimized={physicsOptionsMinimized}
+                    gravity={gravity}
+                    bounce={bounce}
+                    friction={friction}
+                    onGyroChange={(enabled) => {
+                        if (enabled) requestGyro();
+                        else setGyroEnabled(false);
                     }}
-                >
-                    <div className="title-bar">
-                        <div className="title-bar-text">Physics Engine</div>
-                        <div className="title-bar-controls">
-                            <button
-                                aria-label="Minimize"
-                                onClick={() =>
-                                    setPhysicsOptionsMinimized(
-                                        !physicsOptionsMinimized,
-                                    )
-                                }
-                            />
-                        </div>
-                    </div>
-                    {!physicsOptionsMinimized && (
-                        <div className="window-body has-space">
-                            <div
-                                className="field-row"
-                                style={{ marginBottom: "10px" }}
-                            >
-                                <input
-                                    id="gyro"
-                                    type="checkbox"
-                                    checked={gyroEnabled}
-                                    onChange={(e) => {
-                                        if (e.target.checked) requestGyro();
-                                        else setGyroEnabled(false);
-                                    }}
-                                />
-                                <label htmlFor="gyro">Gyroscope Gravity</label>
-                            </div>
-                            <div className="field-row-stacked">
-                                <label>Gravity: {gravity.toFixed(2)}</label>
-                                <input
-                                    type="range"
-                                    min="0"
-                                    max="2"
-                                    step="0.0001"
-                                    value={gravity}
-                                    onChange={(e) => {
-                                        const v = parseFloat(e.target.value);
-                                        setGravity(v);
-                                        gravityRef.current = v;
-                                    }}
-                                />
-                                <label>Bounce: {bounce.toFixed(2)}</label>
-                                <input
-                                    type="range"
-                                    min="0"
-                                    max="1"
-                                    step="0.01"
-                                    value={bounce}
-                                    onChange={(e) => {
-                                        const v = parseFloat(e.target.value);
-                                        setBounce(v);
-                                        bounceRef.current = v;
-                                    }}
-                                />
-                                <label>
-                                    Friction: {(friction * 1000).toFixed(0)}%
-                                </label>
-                                <input
-                                    type="range"
-                                    min="0"
-                                    max="0.1"
-                                    step="0.001"
-                                    value={friction}
-                                    onChange={(e) => {
-                                        const v = parseFloat(e.target.value);
-                                        setFriction(v);
-                                        frictionRef.current = v;
-                                    }}
-                                />
-                            </div>
-                            <button
-                                style={{ width: "100%", marginTop: "10px" }}
-                                onClick={resetPhysics}
-                            >
-                                Reset to Default
-                            </button>
-                        </div>
-                    )}
-                </div>
+                    onMinimizedChange={() =>
+                        setPhysicsOptionsMinimized((minimized) => !minimized)
+                    }
+                    onGravityChange={(value) => {
+                        setGravity(value);
+                        gravityRef.current = value;
+                    }}
+                    onBounceChange={(value) => {
+                        setBounce(value);
+                        bounceRef.current = value;
+                    }}
+                    onFrictionChange={(value) => {
+                        setFriction(value);
+                        frictionRef.current = value;
+                    }}
+                    onReset={resetPhysics}
+                />
             )}
         </div>
     );

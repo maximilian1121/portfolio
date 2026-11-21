@@ -2,7 +2,7 @@
 
 import { Modal } from "@mui/material";
 import { LuEye, LuEyeOff, LuLock, LuMail } from "react-icons/lu";
-import { useAccountState } from "./use-account-state";
+import { useAccountState } from "@/features/account/use-account-state";
 
 type Props = ReturnType<typeof useAccountState> & {
     userEmail: string | undefined;

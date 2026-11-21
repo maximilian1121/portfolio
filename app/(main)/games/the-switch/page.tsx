@@ -1,5 +1,5 @@
 "use client";
-import { BreadcrumbEmitter } from "@/components/BreadcrumbEmitter";
+import { BreadcrumbEmitter } from "@/components/layout/BreadcrumbEmitter";
 import { createClient } from "@/utils/supabase/client";
 import { useEffect, useState, useRef, useMemo } from "react";
 

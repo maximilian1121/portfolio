@@ -1,8 +1,8 @@
 "use client";
 
-import Explorer from "@/components/Explorer";
+import Explorer from "@/components/explorers/Explorer";
 import Link from "next/link";
-import { TOOLS_DATA } from "./data";
+import { TOOLS_DATA } from "@/features/tools/data";
 
 export default function Tools() {
     return (

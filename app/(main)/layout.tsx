@@ -1,6 +1,6 @@
 "use server";
 
-import MainAppBar from "@/components/windowframe";
+import MainAppBar from "@/components/layout/WindowFrame";
 
 export default async function MainLayout({
     children,

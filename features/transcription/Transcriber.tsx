@@ -5,48 +5,16 @@ import {
     decodeAudioFileTo16kHz,
     mergeFloat32Chunks,
     resampleTo16kHz,
-} from "@/lib/audio";
+} from "@/features/transcription/audio";
 import { LuMic, LuSquare, LuUpload } from "react-icons/lu";
-
-type Device = "webgpu" | "wasm";
-type ModelStatus = "idle" | "loading" | "ready" | "error";
-type LoadPhase = "downloading" | "initializing" | null;
-
-const MODEL_OPTIONS = [
-    {
-        id: "onnx-community/whisper-tiny.en",
-        label: "Tiny (English) - ~75MB, fastest",
-    },
-    { id: "onnx-community/whisper-tiny", label: "Tiny (multilingual) - ~75MB" },
-    { id: "onnx-community/whisper-base.en", label: "Base (English) - ~145MB" },
-    {
-        id: "onnx-community/whisper-base",
-        label: "Base (multilingual) - ~145MB",
-    },
-    {
-        id: "onnx-community/whisper-small.en",
-        label: "Small (English) - ~485MB",
-    },
-    {
-        id: "onnx-community/whisper-small",
-        label: "Small (multilingual) - ~485MB",
-    },
-    {
-        id: "Xenova/whisper-medium.en",
-        label: "Medium (English) - ~1.5GB, slow on CPU",
-    },
-    {
-        id: "Xenova/whisper-medium",
-        label: "Medium (multilingual) - ~1.5GB, slow on CPU",
-    },
-    {
-        id: "onnx-community/whisper-large-v3-turbo",
-        label: "Large v3 turbo - ~1.6GB, needs WebGPU",
-    },
-    { id: "Xenova/whisper-large-v3", label: "Large v3 - ~3GB+, WebGPU only" },
-] as const;
-
-const DEFAULT_MODEL = MODEL_OPTIONS[0].id;
+import TranscriberModelControls from "./TranscriberModelControls";
+import {
+    DEFAULT_MODEL,
+    MODEL_OPTIONS,
+    type Device,
+    type LoadPhase,
+    type ModelStatus,
+} from "./models";
 
 export default function Transcriber() {
     const [device, setDevice] = useState<Device | null>(null);
@@ -80,7 +48,7 @@ export default function Transcriber() {
         const initialDevice: Device = hasWebGPU ? "webgpu" : "wasm";
 
         const worker = new Worker(
-            new URL("../workers/whisper-worker.ts", import.meta.url),
+            new URL("../../workers/whisper-worker.ts", import.meta.url),
             {
                 type: "module",
             },
@@ -146,8 +114,7 @@ export default function Transcriber() {
         };
     }, [model]);
 
-    function handleModelChange(e: React.ChangeEvent<HTMLSelectElement>) {
-        const newModel = e.target.value;
+    function handleModelChange(newModel: string) {
         if (newModel === model) return;
 
         setModel(newModel);
@@ -259,169 +226,28 @@ export default function Transcriber() {
         setTranscript("");
     }
 
-    const deviceLabel =
-        modelStatus === "loading" && !device
-            ? "detecting..."
-            : device === "webgpu"
-              ? "WebGPU"
-              : device === "wasm"
-                ? fellBack
-                    ? "WASM (CPU fallback)"
-                    : "WASM (CPU)"
-                : "-";
-
-    const deviceChipClasses =
-        device === "webgpu"
-            ? "bg-green-600"
-            : device === "wasm"
-              ? "bg-purple-600"
-              : "bg-gray-500";
-
     const controlsLocked =
         recording || transcribing || modelStatus === "loading";
-
-    const allModelOptions = [
-        ...MODEL_OPTIONS,
-        ...customModels.map((id) => ({ id, label: `${id} (custom)` })),
-    ];
 
     return (
         <div className="flex h-full w-full max-w-5xl mx-auto flex-col box-border">
             <div className="flex flex-1 flex-col overflow-y-auto">
-                <div className="field-row mb-2 items-center gap-2 flex">
-                    <span>Model:</span>
-                    <select
-                        value={model}
-                        disabled={controlsLocked}
-                        onChange={handleModelChange}
-                    >
-                        {allModelOptions.map((opt) => (
-                            <option key={opt.id} value={opt.id}>
-                                {opt.label}
-                            </option>
-                        ))}
-                    </select>
-
-                    <span>Backend:</span>
-                    <span
-                        className={`inline-block rounded px-2 py-0.5 text-[11px] font-bold text-white ${deviceChipClasses}`}
-                    >
-                        {deviceLabel}
-                    </span>
-                </div>
-
-                <div className="field-row mb-2 items-center gap-2 flex">
-                    <span>Custom model:</span>
-                    <input
-                        type="text"
-                        placeholder="e.g. onnx-community/whisper-tiny"
-                        value={customInput}
-                        disabled={controlsLocked}
-                        onChange={(e) => setCustomInput(e.target.value)}
-                        onKeyDown={(e) => {
-                            if (e.key === "Enter") handleLoadCustomModel();
-                        }}
-                        className="flex-1"
-                    />
-                    <button
-                        disabled={controlsLocked || !customInput.trim()}
-                        onClick={handleLoadCustomModel}
-                    >
-                        Load
-                    </button>
-                </div>
-                <p className="mb-2 text-[11px] text-gray-600">
-                    Any ONNX Whisper style repo on the Hugging Face Hub should
-                    work here. Random repos will yell at you if they are not
-                    actually speech recognition models, which is fair.
-                </p>
-
-                {(model.includes("medium") || model.includes("large")) && (
-                    <p className="mb-2 text-xs text-amber-700">
-                        {model.includes("large") && !model.includes("turbo")
-                            ? "Large v3 downloads several GB and needs a lot of memory. WebGPU is effectively required, and even then it may fail on lower memory devices."
-                            : device === "wasm"
-                              ? "This model is large and runs on CPU (WASM) in your browser. Expect slow loading and transcription. A WebGPU capable browser is strongly recommended."
-                              : "This model downloads a large file on first use. Expect a longer load time."}
-                    </p>
-                )}
-
-                {modelStatus === "loading" && (
-                    <div className="mb-2.5 space-y-2">
-                        <div>
-                            <p className="mb-1 text-xs font-bold flex flex-col gap-2">
-                                <span className="flex items-center gap-1">
-                                    Step 1: Downloading model files
-                                    {loadPhase === "downloading" && (
-                                        <p className="truncate text-xs font-normal">
-                                            {downloadLabel}
-                                        </p>
-                                    )}
-                                </span>
-                                {loadPhase === "downloading" ? (
-                                    <div role="progressbar" className="animate">
-                                        <div
-                                            style={{ width: `${downloadPct}%` }}
-                                        ></div>
-                                    </div>
-                                ) : (
-                                    ""
-                                )}
-                            </p>
-                        </div>
-
-                        <div>
-                            <p className="mb-1 text-xs font-bold">
-                                Step 2: Loading into{" "}
-                                {device === "webgpu" ? "GPU" : "memory"}
-                            </p>
-                            <div className="progress-indicator">
-                                <span
-                                    className={`progress-indicator-bar ${
-                                        loadPhase === "initializing"
-                                            ? "animate-pulse"
-                                            : ""
-                                    }`}
-                                    style={{
-                                        width:
-                                            loadPhase === "initializing"
-                                                ? "100%"
-                                                : "0%",
-                                    }}
-                                />
-                            </div>
-                            {loadPhase === "initializing" && (
-                                <p className="mt-1 text-xs">
-                                    Warming up the model, almost there...
-                                </p>
-                            )}
-
-                            <p className="mb-1 text-xs font-bold flex flex-col gap-2">
-                                <span className="flex items-center gap-1">
-                                    Step 2: Initializing the model
-                                    {loadPhase === "initializing" && (
-                                        <p className="truncate text-xs font-normal">
-                                            {downloadLabel}
-                                        </p>
-                                    )}
-                                </span>
-                                {loadPhase === "initializing" ? (
-                                    <div role="progressbar" className="animate">
-                                        <div
-                                            style={{ width: `${downloadPct}%` }}
-                                        ></div>
-                                    </div>
-                                ) : (
-                                    ""
-                                )}
-                            </p>
-                        </div>
-                    </div>
-                )}
-
-                {modelStatus === "error" && error && (
-                    <div className="field-row mb-2 text-red-800">{error}</div>
-                )}
+                <TranscriberModelControls
+                    model={model}
+                    modelStatus={modelStatus}
+                    device={device}
+                    fellBack={fellBack}
+                    loadPhase={loadPhase}
+                    downloadPct={downloadPct}
+                    downloadLabel={downloadLabel}
+                    customInput={customInput}
+                    customModels={customModels}
+                    controlsLocked={controlsLocked}
+                    error={error}
+                    onModelChange={handleModelChange}
+                    onCustomInputChange={setCustomInput}
+                    onLoadCustomModel={handleLoadCustomModel}
+                />
 
                 <div className="my-2.5 flex items-center gap-2">
                     <button

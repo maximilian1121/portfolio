@@ -1,6 +1,6 @@
 "use client";
 
-import ErrorTemplate from "@/components/error-template";
+import ErrorTemplate from "@/components/errors/ErrorTemplate";
 import { useEffect, useState } from "react";
 
 export default function AuthCodeError() {

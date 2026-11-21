@@ -1,4 +1,4 @@
-import { Blog } from "@/app/types";
+import type { Blog } from "@/features/blog/types";
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 import { MDXRemote } from "next-mdx-remote/rsc";
@@ -6,7 +6,7 @@ import { useMDXComponents } from "@/mdx-components";
 import "katex/dist/katex.min.css";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
-import { BreadcrumbEmitter } from "@/components/BreadcrumbEmitter";
+import { BreadcrumbEmitter } from "@/components/layout/BreadcrumbEmitter";
 import { Metadata } from "next";
 
 function extractImages(content: string): string[] {

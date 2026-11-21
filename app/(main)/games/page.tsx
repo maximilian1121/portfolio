@@ -1,10 +1,10 @@
 "use client";
 
-import Explorer from "@/components/Explorer";
-import SignInForm from "@/components/SignInForm";
+import Explorer from "@/components/explorers/Explorer";
+import SignInForm from "@/components/auth/SignInForm";
 import Link from "next/link";
 import { useState } from "react";
-import { GAMES_DATA } from "./data";
+import { GAMES_DATA } from "@/features/games/data";
 
 export default function Games() {
     const [signInFormOpen, setSignInFormOpen] = useState(false);

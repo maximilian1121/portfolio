@@ -1,4 +1,4 @@
-import Game2048 from "../../../../components/2048/Game2048";
+import Game2048 from "@/features/games/2048/Game2048";
 
 export default function GamesPage() {
   return (

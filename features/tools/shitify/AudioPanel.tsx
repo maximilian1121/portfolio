@@ -1,16 +1,11 @@
 "use client";
 
-import { getFFmpeg } from "@/lib/shitify/ffmpeg-client";
-import { useObjectUrl } from "@/lib/shitify/use-object-url";
+import { getFFmpeg } from "@/features/tools/shitify/lib/ffmpeg-client";
+import { formatBytes } from "@/features/tools/shitify/lib/format-bytes";
+import { useObjectUrl } from "@/features/tools/shitify/lib/use-object-url";
 import { useState } from "react";
 
 type AudioPanelProps = { file: File };
-
-function formatBytes(bytes: number) {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
-}
 
 function qualityToBitrateKbps(quality: number) {
     const clamped = Math.min(100, Math.max(0.01, quality));

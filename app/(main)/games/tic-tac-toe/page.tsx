@@ -2,45 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
-import SignInForm from "@/components/SignInForm";
+import SignInForm from "@/components/auth/SignInForm";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useUserClient } from "@/hooks/use-user-client";
-import { UserTag } from "./UserTag";
-
-type Player = "X" | "O";
-type Board = (Player | null)[];
-
-interface WinRecord {
-    winner: Player | "draw";
-    timestamp: string;
-}
-
-interface MatchListing {
-    id: string;
-    created_at: string;
-    player_x: string;
-}
-
-const WIN_LINES = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-];
-
-function checkWinner(board: Board): Player | "draw" | null {
-    for (const [a, b, c] of WIN_LINES) {
-        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-            return board[a] as Player;
-        }
-    }
-    if (board.every(Boolean)) return "draw";
-    return null;
-}
+import TicTacToeLobby from "@/features/games/tic-tac-toe/TicTacToeLobby";
+import TicTacToeMatch from "@/features/games/tic-tac-toe/TicTacToeMatch";
+import {
+    checkWinner,
+    type Board,
+    type MatchListing,
+    type Player,
+    type WinRecord,
+} from "@/features/games/tic-tac-toe/types";
 
 export default function TicTacToe() {
     const supabase = createClient();
@@ -49,6 +22,7 @@ export default function TicTacToe() {
 
     const { user, profile, loading: userLoading } = useUserClient();
     const userId = user?.id ?? null;
+    const joinId = searchParams.get("join");
 
     const [matchId, setMatchId] = useState<string | null>(null);
     const [board, setBoard] = useState<Board>(Array(9).fill(null));
@@ -66,11 +40,10 @@ export default function TicTacToe() {
     useEffect(() => {
         if (!userId) return;
 
-        const joinId = searchParams.get("join");
         if (joinId) {
             joinMatchById(userId, joinId);
         }
-    }, [userId]);
+    }, [joinId, userId]);
 
     useEffect(() => {
         if (matchId) return;
@@ -293,10 +266,6 @@ export default function TicTacToe() {
         setTimeout(() => setCopied(false), 2000);
     };
 
-    const xWins = winHistory.filter((r) => r.winner === "X").length;
-    const oWins = winHistory.filter((r) => r.winner === "O").length;
-    const draws = winHistory.filter((r) => r.winner === "draw").length;
-
     if (!userId && !userLoading) {
         return (
             <SignInForm
@@ -311,195 +280,34 @@ export default function TicTacToe() {
 
     if (!matchId) {
         return (
-            <div className="flex flex-col items-center gap-4 p-6">
-                <div className="window glass w-72">
-                    <div className="title-bar">
-                        <div className="title-bar-text">Tic Tac Toe</div>
-                    </div>
-
-                    <div className="window-body p-4 flex flex-col gap-3">
-                        <p className="text-xs">
-                            Logged in as <strong>{profile?.username}</strong>
-                        </p>
-
-                        <button onClick={createMatch} disabled={loading}>
-                            Create Match (X)
-                        </button>
-                    </div>
-                </div>
-
-                <div className="window glass w-72">
-                    <div className="title-bar">
-                        <div className="title-bar-text">Open Matches</div>
-                    </div>
-
-                    <div className="window-body p-3">
-                        {openMatches.length === 0 ? (
-                            <p className="text-xs">No matches yet</p>
-                        ) : (
-                            <ul className="tree-view">
-                                {openMatches.map((m) => (
-                                    <li
-                                        key={m.id}
-                                        className="flex justify-between"
-                                    >
-                                        <span className="text-xs">
-                                            {m.player_x.slice(0, 8)}
-                                        </span>
-                                        <button
-                                            onClick={() => joinMatch(m.id)}
-                                            disabled={m.player_x === userId}
-                                        >
-                                            Join
-                                        </button>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </div>
-                </div>
-            </div>
+            <TicTacToeLobby
+                username={profile?.username}
+                userId={userId ?? ""}
+                loading={loading}
+                openMatches={openMatches}
+                onCreateMatch={createMatch}
+                onJoinMatch={joinMatch}
+            />
         );
     }
 
     return (
-        <div className="flex flex-wrap gap-4 p-6 justify-center">
-            <div className="window glass w-72 h-full">
-                <div className="title-bar">
-                    <div className="title-bar-text">Tic Tac Toe — {player}</div>
-                </div>
-
-                <div className="window-body p-3 flex flex-col gap-3 h-full">
-                    <div className="flex justify-between text-xs">
-                        <span>
-                            Turn: <b>{turn}</b>
-                        </span>
-
-                        {player === "X" && status === "waiting" && (
-                            <button onClick={copyJoinUrl}>
-                                {copied ? "Copied!" : "Invite"}
-                            </button>
-                        )}
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-1">
-                        {board.map((cell, i) => (
-                            <button
-                                key={i}
-                                onClick={() => play(i)}
-                                disabled={
-                                    !!cell ||
-                                    player !== turn ||
-                                    !!winner ||
-                                    status === "waiting"
-                                }
-                                className="w-16 h-16 text-2xl font-bold"
-                            >
-                                {cell}
-                            </button>
-                        ))}
-                    </div>
-
-                    {winner && (
-                        <button onClick={restartMatch}>Play Again</button>
-                    )}
-
-                    {status === "abandoned" && (
-                        <p className="text-xs text-red-500">
-                            Opponent disconnected!
-                        </p>
-                    )}
-
-                    {(winner || status === "abandoned") && (
-                        <button onClick={restartMatch}>Play Again</button>
-                    )}
-                </div>
-            </div>
-
-            <span className="flex flex-col gap-4 w-52">
-                <div className="window glass w-full">
-                    <div className="title-bar">
-                        <div className="title-bar-text">Stats</div>
-                    </div>
-
-                    <div className="window-body p-3 text-xs">
-                        <p>X wins: {xWins}</p>
-                        <p>O wins: {oWins}</p>
-                        <p>Draws: {draws}</p>
-                    </div>
-                </div>
-
-                <div className="window glass w-full">
-                    <div className="title-bar">
-                        <div className="title-bar-text">Players</div>
-                    </div>
-
-                    <div className="window-body p-3 text-xs flex flex-col gap-2">
-                        <span className="opacity-70">
-                            {playerXId ? (
-                                <UserTag
-                                    id={playerXId}
-                                    type="X"
-                                    userId={userId}
-                                    profile={profile}
-                                    supabase={supabase}
-                                />
-                            ) : (
-                                "Waiting..."
-                            )}
-                        </span>
-
-                        <span className="opacity-70">
-                            {playerOId ? (
-                                <UserTag
-                                    id={playerOId}
-                                    type="O"
-                                    userId={userId}
-                                    profile={profile}
-                                    supabase={supabase}
-                                />
-                            ) : (
-                                "Waiting..."
-                            )}
-                        </span>
-                    </div>
-                </div>
-
-                <div className="window glass w-full">
-                    <div className="title-bar">
-                        <div className="title-bar-text">Win History</div>
-                    </div>
-
-                    <div className="window-body text-xs max-h-64 overflow-y-auto">
-                        {winHistory.length === 0 ? (
-                            <p className="p-3">No games played yet</p>
-                        ) : (
-                            <ul className="tree-view">
-                                {winHistory
-                                    .slice()
-                                    .reverse()
-                                    .map((record, i) => (
-                                        <li
-                                            key={i}
-                                            className="flex justify-between"
-                                        >
-                                            <span>
-                                                {record.winner === "draw"
-                                                    ? "Draw 🤝"
-                                                    : `${record.winner} won`}
-                                            </span>
-                                            <span className="opacity-60">
-                                                {new Date(
-                                                    record.timestamp,
-                                                ).toLocaleTimeString()}
-                                            </span>
-                                        </li>
-                                    ))}
-                            </ul>
-                        )}
-                    </div>
-                </div>
-            </span>
-        </div>
+        <TicTacToeMatch
+            board={board}
+            player={player}
+            turn={turn}
+            status={status}
+            winner={winner}
+            copied={copied}
+            winHistory={winHistory}
+            playerXId={playerXId}
+            playerOId={playerOId}
+            userId={userId}
+            profile={profile}
+            supabase={supabase}
+            onPlay={play}
+            onRestart={restartMatch}
+            onCopyInvite={copyJoinUrl}
+        />
     );
 }

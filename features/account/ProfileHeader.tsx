@@ -1,6 +1,6 @@
 "use client";
 
-import Tumbleweed from "@/components/tumblweed";
+import Tumbleweed from "@/components/layout/Tumbleweed";
 import { Tooltip } from "@mui/material";
 import Image from "next/image";
 

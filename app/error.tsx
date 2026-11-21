@@ -1,6 +1,6 @@
 "use client";
 
-import ErrorTemplate from "../components/error-template";
+import ErrorTemplate from "@/components/errors/ErrorTemplate";
 
 const serverErrorMessages: string[] = [
     "Our servers are currently contemplating their own existence. They've decided to stop working and start a philosophy club.",

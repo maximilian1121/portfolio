@@ -1,4 +1,4 @@
-import { BreadcrumbEmitter } from "@/components/BreadcrumbEmitter";
+import { BreadcrumbEmitter } from "@/components/layout/BreadcrumbEmitter";
 import LoadingTemplate from "@/app/loading";
 
 export default function Loading() {

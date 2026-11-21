@@ -12,7 +12,7 @@ import {
 } from "next-mdx-remote-client/serialize";
 import { MDXClient } from "next-mdx-remote-client/csr";
 import { useMDXComponents } from "@/mdx-components";
-import AdminBlogExplorer from "./AdminBlogExporer";
+import AdminBlogExplorer from "@/features/blog/admin/AdminBlogExplorer";
 import {
     LuAppWindow,
     LuAppWindowMac,

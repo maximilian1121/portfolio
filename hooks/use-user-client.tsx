@@ -1,7 +1,7 @@
 "use client";
 
 import { createClient } from "@/utils/supabase/client";
-import { User } from "@supabase/supabase-js";
+import type { User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 
 export type Profile = {
@@ -19,10 +19,12 @@ export function useUserClient() {
 
     useEffect(() => {
         let isMounted = true;
-        const controller = new AbortController();
-        const instanceId = Math.random().toString(36).substring(7);
+        let profileRequestId = 0;
 
         const fetchFullData = async (currentUser: User) => {
+            const requestId = ++profileRequestId;
+            setLoading(true);
+
             try {
                 const { data, error } = await supabase
                     .from("profiles")
@@ -30,44 +32,36 @@ export function useUserClient() {
                     .eq("id", currentUser.id)
                     .maybeSingle();
 
-                if (!isMounted) return;
+                if (!isMounted || requestId !== profileRequestId) return;
 
                 if (error) {
-                    console.error(
-                        `[DB ERROR] Instance: ${instanceId}:`,
-                        error.message,
-                    );
+                    console.error("Failed to load user profile:", error.message);
+                    setProfile(null);
                 } else {
                     setProfile(data);
                 }
             } catch (err) {
-                console.error(
-                    `[CRITICAL] Instance: ${instanceId} crashed:`,
-                    err,
-                );
+                if (isMounted && requestId === profileRequestId) {
+                    console.error("Failed to load user profile:", err);
+                    setProfile(null);
+                }
             } finally {
-                if (isMounted) setLoading(false);
+                if (isMounted && requestId === profileRequestId) {
+                    setLoading(false);
+                }
             }
         };
 
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            if (isMounted && session?.user) {
-                setUser(session.user);
-                fetchFullData(session.user);
-            } else if (isMounted) {
-                setLoading(false);
-            }
-        });
-
         const {
             data: { subscription },
-        } = supabase.auth.onAuthStateChange((event, session) => {
+        } = supabase.auth.onAuthStateChange((_event, session) => {
             if (!isMounted) return;
 
             if (session?.user) {
                 setUser(session.user);
-                fetchFullData(session.user);
+                void fetchFullData(session.user);
             } else {
+                profileRequestId += 1;
                 setUser(null);
                 setProfile(null);
                 setLoading(false);
@@ -76,8 +70,8 @@ export function useUserClient() {
 
         return () => {
             isMounted = false;
+            profileRequestId += 1;
             subscription.unsubscribe();
-            controller.abort();
         };
     }, []);
 

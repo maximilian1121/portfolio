@@ -1,6 +1,6 @@
 "use client";
 
-import Explorer from "@/components/Explorer";
+import Explorer from "@/components/explorers/Explorer";
 import { createClient } from "@/utils/supabase/client";
 import { Modal } from "@mui/material";
 import Link from "next/link";

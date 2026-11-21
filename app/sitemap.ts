@@ -1,8 +1,8 @@
 import { createClient } from "@/utils/supabase/server";
 import type { MetadataRoute } from "next";
 import { cookies } from "next/headers";
-import { GAMES_DATA } from "./(main)/games/data";
-import { TOOLS_DATA } from "./(main)/tools/data";
+import { GAMES_DATA } from "@/features/games/data";
+import { TOOLS_DATA } from "@/features/tools/data";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const supabase = await createClient(await cookies());

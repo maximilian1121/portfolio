@@ -1,16 +1,11 @@
 "use client";
 
-import { useObjectUrl } from "@/lib/shitify/use-object-url";
+import { useObjectUrl } from "@/features/tools/shitify/lib/use-object-url";
+import { formatBytes } from "@/features/tools/shitify/lib/format-bytes";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 type ImagePanelProps = { file: File };
-
-function formatBytes(bytes: number) {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
-}
 
 type CrunchResult = { blob: Blob; img: HTMLImageElement; url: string };
 

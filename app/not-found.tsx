@@ -1,7 +1,7 @@
 "use client";
 
 import { Link } from "@mui/material";
-import ErrorTemplate from "../components/error-template";
+import ErrorTemplate from "@/components/errors/ErrorTemplate";
 
 const notFoundMessages: string[] = [
     "This page has ascended to a higher plane of consciousness. It no longer concerns itself with 'URLs'.",

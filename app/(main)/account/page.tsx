@@ -2,12 +2,12 @@
 
 import LoadingTemplate from "@/app/loading";
 import Link from "next/link";
-import { useAccountState } from "./use-account-state";
-import AccountModals from "./AccountModals";
-import AccountSecurity from "./AccountSecurity";
-import DangerZone from "./DangerZone";
-import LinkedAccounts from "./LinkedAccounts";
-import ProfileHeader from "./ProfileHeader";
+import { useAccountState } from "@/features/account/use-account-state";
+import AccountModals from "@/features/account/AccountModals";
+import AccountSecurity from "@/features/account/AccountSecurity";
+import DangerZone from "@/features/account/DangerZone";
+import LinkedAccounts from "@/features/account/LinkedAccounts";
+import ProfileHeader from "@/features/account/ProfileHeader";
 
 export default function Account() {
     const state = useAccountState();

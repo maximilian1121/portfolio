@@ -1,6 +1,6 @@
 "use client";
 
-import { providers } from "@/components/SignInForm";
+import { providers } from "@/components/auth/SignInForm";
 import { CircularProgress } from "@mui/material";
 import { Provider, UserIdentity } from "@supabase/supabase-js";
 import { LuLink, LuUnlink } from "react-icons/lu";

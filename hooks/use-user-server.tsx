@@ -9,23 +9,23 @@ export async function getAuthClaims() {
 
     try {
         const {
-            data: { session },
+            data: { user },
             error: authError,
-        } = await supabase.auth.getSession();
+        } = await supabase.auth.getUser();
 
-        if (authError || !session) return { user: null, profile: null };
+        if (authError || !user) return { user: null, profile: null };
 
-        const { data: profile, error: profileError } = await supabase
+        const { data: profile } = await supabase
             .from("profiles")
             .select("*")
-            .eq("id", session.user.id)
+            .eq("id", user.id)
             .single();
 
         return {
-            user: session.user,
+            user,
             profile: profile || null,
         };
-    } catch (e) {
+    } catch {
         return { user: null, profile: null };
     }
 }
