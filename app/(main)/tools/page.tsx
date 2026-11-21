@@ -31,14 +31,19 @@ export default function Tools() {
                                     {(Array.isArray(tool.category)
                                         ? tool.category
                                         : [tool.category]
-                                    ).map((cat: string, index: number) => (
-                                        <span
-                                            key={index}
-                                            className="px-1 text-[10px] bg-blue-100 border border-blue-200"
-                                        >
-                                            {cat}
-                                        </span>
-                                    ))}
+                                    )
+                                        .filter(
+                                            (cat): cat is string =>
+                                                typeof cat === "string",
+                                        )
+                                        .map((cat, index) => (
+                                            <span
+                                                key={index}
+                                                className="px-1 text-[10px] bg-blue-100 border border-blue-200"
+                                            >
+                                                {cat}
+                                            </span>
+                                        ))}
                                 </span>
                             </div>
 

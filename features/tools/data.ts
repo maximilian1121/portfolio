@@ -4,7 +4,7 @@ type Tool = {
     usefulness: number;
     description: string;
     category?: string[] | string;
-    link?: string;
+    link: string;
 };
 
 export const TOOLS_DATA: Tool[] = [
